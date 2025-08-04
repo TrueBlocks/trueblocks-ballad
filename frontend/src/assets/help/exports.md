@@ -6,6 +6,7 @@ be found in the LICENSE file.
 Parts of this file were auto generated. Edit only those parts of
 the code inside of 'EXISTING_CODE' tags.
 -->
+
 # Exports View
 
 // EXISTING_CODE
@@ -16,13 +17,7 @@ This is the help file for the Exports view.
 
 - Statements Facet uses Statements store.
 - Balances Facet uses Balances store.
-- Transfers Facet uses Transfers store.
-- Transactions Facet uses Transactions store.
-- Withdrawals Facet uses Withdrawals store.
 - Assets Facet uses Assets store.
-- Logs Facet uses Logs store.
-- Traces Facet uses Traces store.
-- Receipts Facet uses Receipts store.
 
 ## Stores
 
@@ -48,8 +43,6 @@ This is the help file for the Exports view.
   - decimals: Decimals
   - actions: Actions
 
-- **Logs Store (14 members)**
-
   - blockNumber: the number of the block
   - transactionIndex: the zero-indexed position of the transaction in the block
   - logIndex: the zero-indexed position of this log relative to the block
@@ -65,22 +58,20 @@ This is the help file for the Exports view.
   - compressedLog: a truncated, more readable version of the articulation
   - isNFT: true if the log is an NFT transfer
 
-- **Receipts Store (14 members)**
-
-  - logsBloom: 
-  - cumulativeGasUsed: 
-  - effectiveGasPrice: 
-  - from: 
-  - to: 
-  - blockHash: 
-  - blockNumber: 
+  - logsBloom:
+  - cumulativeGasUsed:
+  - effectiveGasPrice:
+  - from:
+  - to:
+  - blockHash:
+  - blockNumber:
   - contractAddress: the address of the newly created contract, if any
   - gasUsed: the amount of gas actually used by the transaction
-  - isError: 
+  - isError:
   - logs: a possibly empty array of logs
   - status: `1` on transaction suceess, `null` if tx precedes Byzantium, `0` otherwise
-  - transactionHash: 
-  - transactionIndex: 
+  - transactionHash:
+  - transactionIndex:
 
 - **Statements Store (43 members)**
 
@@ -128,8 +119,6 @@ This is the help file for the Exports view.
   - endBalCalc: begBal + amountNet
   - correctingReasons: for unreconciled transfers, the reasons for the correcting entries, if any
 
-- **Traces Store (14 members)**
-
   - blockHash: the hash of the block containing this trace
   - blockNumber: the number of the block
   - timestamp: the timestamp of the block
@@ -139,20 +128,18 @@ This is the help file for the Exports view.
   - subtraces: the number of children traces that the trace hash
   - type: the type of the trace
   - compressedTrace: a compressed string version of the articulated trace
-  - error: 
+  - error:
   - traceAddress: a particular trace's address in the trace tree
   - action: the trace action for this trace
   - result: the trace result of this trace
   - articulatedTrace: human readable version of the trace action input data
 
-- **Transactions Store (27 members)**
-
-  - gasUsed: 
-  - chainId: 
-  - maxPriorityFeePerGas: 
-  - type: 
-  - traces: 
-  - maxFeePerGas: 
+  - gasUsed:
+  - chainId:
+  - maxPriorityFeePerGas:
+  - type:
+  - traces:
+  - maxFeePerGas:
   - hash: the hash of the transaction
   - blockHash: the hash of the block containing this transaction
   - blockNumber: the number of the block
@@ -168,14 +155,12 @@ This is the help file for the Exports view.
   - gasPrice: the number of wei per unit of gas the sender is willing to spend
   - gasCost: the number of wei per unit of gas the sender is willing to spend
   - input: byte data either containing a message or funcational data for a smart contracts. See the --articulate
-  - receipt: 
+  - receipt:
   - statements: array of reconciliation statements
-  - articulatedTx: 
+  - articulatedTx:
   - hasToken: `true` if the transaction is token related, `false` otherwise
   - isError: `true` if the transaction ended in error, `false` otherwise
   - compressedTx: truncated, more readable version of the articulation
-
-- **Transfers Store (23 members)**
 
   - blockNumber: the number of the block
   - transactionIndex: the zero-indexed position of the transaction in the block
@@ -200,8 +185,6 @@ This is the help file for the Exports view.
   - selfDestructOut: the outgoing value of a self-destruct if sender is the holder address
   - transaction: the transaction that triggered the transfer
   - log: if a token transfer, the log that triggered the transfer
-
-- **Withdrawals Store (8 members)**
 
   - address: the recipient for the withdrawn ether
   - amount: a nonzero amount of ether given in gwei (1e9 wei)

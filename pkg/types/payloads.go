@@ -1,10 +1,24 @@
 package types
 
+// Period represents different time aggregation levels
+type Period int
+
+const (
+	PeriodBlockly Period = iota // Default - no aggregation, raw data
+	PeriodHourly
+	PeriodDaily
+	PeriodWeekly
+	PeriodMonthly
+	PeriodQuarterly
+	PeriodAnnual
+)
+
 type Payload struct {
 	Collection string    `json:"collection"`
 	DataFacet  DataFacet `json:"dataFacet"`
 	Chain      string    `json:"chain,omitempty"`
 	Address    string    `json:"address,omitempty"`
+	Period     Period    `json:"period,omitempty"`
 }
 
 type DataLoadedPayload struct {

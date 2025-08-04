@@ -46,13 +46,7 @@ export namespace exports {
 	    facet: types.DataFacet;
 	    assets: types.Name[];
 	    balances: types.Token[];
-	    logs: types.Log[];
-	    receipts: types.Receipt[];
 	    statements: types.Statement[];
-	    traces: types.Trace[];
-	    transactions: types.Transaction[];
-	    transfers: types.Transfer[];
-	    withdrawals: types.Withdrawal[];
 	    totalItems: number;
 	    expectedTotal: number;
 	    isFetching: boolean;
@@ -67,13 +61,7 @@ export namespace exports {
 	        this.facet = source["facet"];
 	        this.assets = this.convertValues(source["assets"], types.Name);
 	        this.balances = this.convertValues(source["balances"], types.Token);
-	        this.logs = this.convertValues(source["logs"], types.Log);
-	        this.receipts = this.convertValues(source["receipts"], types.Receipt);
 	        this.statements = this.convertValues(source["statements"], types.Statement);
-	        this.traces = this.convertValues(source["traces"], types.Trace);
-	        this.transactions = this.convertValues(source["transactions"], types.Transaction);
-	        this.transfers = this.convertValues(source["transfers"], types.Transfer);
-	        this.withdrawals = this.convertValues(source["withdrawals"], types.Withdrawal);
 	        this.totalItems = source["totalItems"];
 	        this.expectedTotal = source["expectedTotal"];
 	        this.isFetching = source["isFetching"];
@@ -529,13 +517,7 @@ export namespace types {
 	export enum DataFacet {
 	    STATEMENTS = "statements",
 	    BALANCES = "balances",
-	    TRANSFERS = "transfers",
-	    TRANSACTIONS = "transactions",
-	    WITHDRAWALS = "withdrawals",
 	    ASSETS = "assets",
-	    LOGS = "logs",
-	    TRACES = "traces",
-	    RECEIPTS = "receipts",
 	}
 	export enum LoadState {
 	    STALE = "stale",
@@ -1299,131 +1281,6 @@ export namespace types {
 	        this.type = source["type"];
 	        this.value = this.convertValues(source["value"], null);
 	        this.statements = this.convertValues(source["statements"], Statement);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class Transfer {
-	    // Go type: base
-	    amountIn?: any;
-	    // Go type: base
-	    amountOut?: any;
-	    asset: base.Address;
-	    blockNumber: number;
-	    decimals: number;
-	    // Go type: base
-	    gasOut?: any;
-	    holder: base.Address;
-	    // Go type: base
-	    internalIn?: any;
-	    // Go type: base
-	    internalOut?: any;
-	    logIndex: number;
-	    // Go type: base
-	    minerBaseRewardIn?: any;
-	    // Go type: base
-	    minerNephewRewardIn?: any;
-	    // Go type: base
-	    minerTxFeeIn?: any;
-	    // Go type: base
-	    minerUncleRewardIn?: any;
-	    // Go type: base
-	    prefundIn?: any;
-	    recipient: base.Address;
-	    // Go type: base
-	    selfDestructIn?: any;
-	    // Go type: base
-	    selfDestructOut?: any;
-	    sender: base.Address;
-	    transactionIndex: number;
-	    log?: Log;
-	    transaction?: Transaction;
-	
-	    static createFrom(source: any = {}) {
-	        return new Transfer(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.amountIn = this.convertValues(source["amountIn"], null);
-	        this.amountOut = this.convertValues(source["amountOut"], null);
-	        this.asset = this.convertValues(source["asset"], base.Address);
-	        this.blockNumber = source["blockNumber"];
-	        this.decimals = source["decimals"];
-	        this.gasOut = this.convertValues(source["gasOut"], null);
-	        this.holder = this.convertValues(source["holder"], base.Address);
-	        this.internalIn = this.convertValues(source["internalIn"], null);
-	        this.internalOut = this.convertValues(source["internalOut"], null);
-	        this.logIndex = source["logIndex"];
-	        this.minerBaseRewardIn = this.convertValues(source["minerBaseRewardIn"], null);
-	        this.minerNephewRewardIn = this.convertValues(source["minerNephewRewardIn"], null);
-	        this.minerTxFeeIn = this.convertValues(source["minerTxFeeIn"], null);
-	        this.minerUncleRewardIn = this.convertValues(source["minerUncleRewardIn"], null);
-	        this.prefundIn = this.convertValues(source["prefundIn"], null);
-	        this.recipient = this.convertValues(source["recipient"], base.Address);
-	        this.selfDestructIn = this.convertValues(source["selfDestructIn"], null);
-	        this.selfDestructOut = this.convertValues(source["selfDestructOut"], null);
-	        this.sender = this.convertValues(source["sender"], base.Address);
-	        this.transactionIndex = source["transactionIndex"];
-	        this.log = this.convertValues(source["log"], Log);
-	        this.transaction = this.convertValues(source["transaction"], Transaction);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class Withdrawal {
-	    address: base.Address;
-	    // Go type: base
-	    amount: any;
-	    blockNumber: number;
-	    index: number;
-	    timestamp: number;
-	    validatorIndex: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new Withdrawal(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.address = this.convertValues(source["address"], base.Address);
-	        this.amount = this.convertValues(source["amount"], null);
-	        this.blockNumber = source["blockNumber"];
-	        this.index = source["index"];
-	        this.timestamp = source["timestamp"];
-	        this.validatorIndex = source["validatorIndex"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

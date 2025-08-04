@@ -40,6 +40,7 @@ type Store[T any] struct {
 	stateReason        string
 	expectedTotalItems atomic.Int64
 	dataGeneration     atomic.Uint64
+	summaryManager     *SummaryManager[T] // Manages aggregated summary data
 	mutex              sync.RWMutex
 }
 
@@ -57,13 +58,14 @@ func NewStore[T any](
 	mappingFunc MappingFunc[T],
 ) *Store[T] {
 	s := &Store[T]{
-		data:        make([]*T, 0),
-		observers:   make([]FacetObserver[T], 0),
-		queryFunc:   queryFunc,
-		processFunc: processFunc,
-		mappingFunc: mappingFunc,
-		contextKey:  contextKey,
-		state:       StateStale,
+		data:           make([]*T, 0),
+		observers:      make([]FacetObserver[T], 0),
+		queryFunc:      queryFunc,
+		processFunc:    processFunc,
+		mappingFunc:    mappingFunc,
+		contextKey:     contextKey,
+		state:          StateStale,
+		summaryManager: NewSummaryManager[T](),
 	}
 	if mappingFunc != nil {
 		tempMap := make(map[interface{}]*T)
@@ -326,6 +328,7 @@ func (s *Store[T]) Reset() {
 		newMap := make(map[interface{}]*T)
 		s.dataMap = &newMap
 	}
+	s.summaryManager.Reset() // Reset summary data as well
 	s.expectedTotalItems.Store(0)
 	s.dataGeneration.Add(1)
 	newState := StateStale
@@ -352,4 +355,14 @@ func (s *Store[T]) UpdateData(updateFunc func(data []*T) []*T) {
 		}
 		s.dataMap = &newMap
 	}
+}
+
+// GetSummaryManager returns the summary manager for this store
+func (s *Store[T]) GetSummaryManager() *SummaryManager[T] {
+	return s.summaryManager
+}
+
+// GetSummaries returns summary data for the given period
+func (s *Store[T]) GetSummaries(period Period) []*T {
+	return s.summaryManager.GetSummaries(period)
 }

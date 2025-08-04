@@ -1,3 +1,12 @@
+import { describe, test } from 'vitest';
+
+// All tests in this file are currently commented out
+describe('Hook Integration (disabled)', () => {
+  test.skip('placeholder - all tests are commented out', () => {
+    // This is a placeholder test since all real tests are commented out
+  });
+});
+
 // // Mock the context dependencies
 // vi.mock('@contexts', async () => {
 //   const actual = await vi.importActual('@contexts');

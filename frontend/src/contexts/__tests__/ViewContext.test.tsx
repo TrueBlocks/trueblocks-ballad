@@ -1,3 +1,12 @@
+import { describe, test } from 'vitest';
+
+// All tests in this file are currently commented out
+describe('ViewContext (disabled)', () => {
+  test.skip('placeholder - all tests are commented out', () => {
+    // This is a placeholder test since all real tests are commented out
+  });
+});
+
 // // Minimal wrapper for testing
 // const createWrapper = () => {
 //   const Wrapper = ({ children }: { children: ReactNode }) => (

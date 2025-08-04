@@ -1,3 +1,12 @@
+import { describe, test } from 'vitest';
+
+// All tests in this file are currently commented out
+describe('Pagination (disabled)', () => {
+  test.skip('placeholder - all tests are commented out', () => {
+    // This is a placeholder test since all real tests are commented out
+  });
+});
+
 // Mock the usePagination hook
 // const mockGoToPage = vi.fn();
 // vi.mock('../usePagination', () => ({

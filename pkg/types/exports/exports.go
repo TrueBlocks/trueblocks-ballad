@@ -21,41 +21,24 @@ import (
 )
 
 const (
-	ExportsStatements   types.DataFacet = "statements"
-	ExportsBalances     types.DataFacet = "balances"
-	ExportsTransfers    types.DataFacet = "transfers"
-	ExportsTransactions types.DataFacet = "transactions"
-	ExportsWithdrawals  types.DataFacet = "withdrawals"
-	ExportsAssets       types.DataFacet = "assets"
-	ExportsLogs         types.DataFacet = "logs"
-	ExportsTraces       types.DataFacet = "traces"
-	ExportsReceipts     types.DataFacet = "receipts"
+	ExportsStatements types.DataFacet = "statements"
+	ExportsBalances   types.DataFacet = "balances"
+	ExportsAssets     types.DataFacet = "assets"
 )
 
 func init() {
 	types.RegisterDataFacet(ExportsStatements)
 	types.RegisterDataFacet(ExportsBalances)
-	types.RegisterDataFacet(ExportsTransfers)
-	types.RegisterDataFacet(ExportsTransactions)
-	types.RegisterDataFacet(ExportsWithdrawals)
 	types.RegisterDataFacet(ExportsAssets)
-	types.RegisterDataFacet(ExportsLogs)
-	types.RegisterDataFacet(ExportsTraces)
-	types.RegisterDataFacet(ExportsReceipts)
 }
 
 type ExportsCollection struct {
-	statementsFacet   *facets.Facet[Statement]
-	balancesFacet     *facets.Facet[Balance]
-	transfersFacet    *facets.Facet[Transfer]
-	transactionsFacet *facets.Facet[Transaction]
-	withdrawalsFacet  *facets.Facet[Withdrawal]
-	assetsFacet       *facets.Facet[Asset]
-	logsFacet         *facets.Facet[Log]
-	tracesFacet       *facets.Facet[Trace]
-	receiptsFacet     *facets.Facet[Receipt]
-	summary           types.Summary
-	summaryMutex      sync.RWMutex
+	statementsFacet *facets.Facet[Statement]
+	balancesFacet   *facets.Facet[Balance]
+	namesFacet      *facets.Facet[Name]
+	assetsFacet     *facets.Facet[Asset]
+	summary         types.Summary
+	summaryMutex    sync.RWMutex
 }
 
 func NewExportsCollection(payload *types.Payload) *ExportsCollection {
@@ -84,29 +67,11 @@ func (c *ExportsCollection) initializeFacets(payload *types.Payload) {
 		c,
 	)
 
-	c.transfersFacet = facets.NewFacet(
-		ExportsTransfers,
-		isTransfer,
-		isDupTransfer(),
-		c.getTransfersStore(payload, ExportsTransfers),
-		"exports",
-		c,
-	)
-
-	c.transactionsFacet = facets.NewFacet(
-		ExportsTransactions,
-		isTransaction,
-		isDupTransaction(),
-		c.getTransactionsStore(payload, ExportsTransactions),
-		"exports",
-		c,
-	)
-
-	c.withdrawalsFacet = facets.NewFacet(
-		ExportsWithdrawals,
-		isWithdrawal,
-		isDupWithdrawal(),
-		c.getWithdrawalsStore(payload, ExportsWithdrawals),
+	c.namesFacet = facets.NewFacet(
+		ExportsAssets, // Use ExportsAssets facet for names
+		isName,
+		isDupName(),
+		c.getNamesStore(payload, ExportsAssets),
 		"exports",
 		c,
 	)
@@ -116,33 +81,6 @@ func (c *ExportsCollection) initializeFacets(payload *types.Payload) {
 		isAsset,
 		isDupAsset(),
 		c.getAssetsStore(payload, ExportsAssets),
-		"exports",
-		c,
-	)
-
-	c.logsFacet = facets.NewFacet(
-		ExportsLogs,
-		isLog,
-		isDupLog(),
-		c.getLogsStore(payload, ExportsLogs),
-		"exports",
-		c,
-	)
-
-	c.tracesFacet = facets.NewFacet(
-		ExportsTraces,
-		isTrace,
-		isDupTrace(),
-		c.getTracesStore(payload, ExportsTraces),
-		"exports",
-		c,
-	)
-
-	c.receiptsFacet = facets.NewFacet(
-		ExportsReceipts,
-		isReceipt,
-		isDupReceipt(),
-		c.getReceiptsStore(payload, ExportsReceipts),
 		"exports",
 		c,
 	)
@@ -160,43 +98,13 @@ func isBalance(item *Balance) bool {
 	// EXISTING_CODE
 }
 
-func isTransfer(item *Transfer) bool {
-	// EXISTING_CODE
-	return true
-	// EXISTING_CODE
-}
-
-func isTransaction(item *Transaction) bool {
-	// EXISTING_CODE
-	return true
-	// EXISTING_CODE
-}
-
-func isWithdrawal(item *Withdrawal) bool {
+func isName(item *Name) bool {
 	// EXISTING_CODE
 	return true
 	// EXISTING_CODE
 }
 
 func isAsset(item *Asset) bool {
-	// EXISTING_CODE
-	return true
-	// EXISTING_CODE
-}
-
-func isLog(item *Log) bool {
-	// EXISTING_CODE
-	return true
-	// EXISTING_CODE
-}
-
-func isTrace(item *Trace) bool {
-	// EXISTING_CODE
-	return true
-	// EXISTING_CODE
-}
-
-func isReceipt(item *Receipt) bool {
 	// EXISTING_CODE
 	return true
 	// EXISTING_CODE
@@ -214,43 +122,13 @@ func isDupBalance() func(existing []*Balance, newItem *Balance) bool {
 	// EXISTING_CODE
 }
 
-func isDupLog() func(existing []*Log, newItem *Log) bool {
-	// EXISTING_CODE
-	return nil
-	// EXISTING_CODE
-}
-
-func isDupReceipt() func(existing []*Receipt, newItem *Receipt) bool {
+func isDupName() func(existing []*Name, newItem *Name) bool {
 	// EXISTING_CODE
 	return nil
 	// EXISTING_CODE
 }
 
 func isDupStatement() func(existing []*Statement, newItem *Statement) bool {
-	// EXISTING_CODE
-	return nil
-	// EXISTING_CODE
-}
-
-func isDupTrace() func(existing []*Trace, newItem *Trace) bool {
-	// EXISTING_CODE
-	return nil
-	// EXISTING_CODE
-}
-
-func isDupTransaction() func(existing []*Transaction, newItem *Transaction) bool {
-	// EXISTING_CODE
-	return nil
-	// EXISTING_CODE
-}
-
-func isDupTransfer() func(existing []*Transfer, newItem *Transfer) bool {
-	// EXISTING_CODE
-	return nil
-	// EXISTING_CODE
-}
-
-func isDupWithdrawal() func(existing []*Withdrawal, newItem *Withdrawal) bool {
 	// EXISTING_CODE
 	return nil
 	// EXISTING_CODE
@@ -268,36 +146,22 @@ func (c *ExportsCollection) LoadData(dataFacet types.DataFacet) {
 				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
 			}
 		case ExportsBalances:
-			if err := c.balancesFacet.Load(); err != nil {
-				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
+			// Load statements first (balances observer will populate balance store)
+			if err := c.statementsFacet.Load(); err != nil {
+				logging.LogError(fmt.Sprintf("LoadData.statements from store: %%v"), err, facets.ErrAlreadyLoading)
 			}
-		case ExportsTransfers:
-			if err := c.transfersFacet.Load(); err != nil {
-				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
+			// Load names for balance enrichment
+			if err := c.namesFacet.Load(); err != nil {
+				logging.LogError(fmt.Sprintf("LoadData.names from store: %%v"), err, facets.ErrAlreadyLoading)
 			}
-		case ExportsTransactions:
-			if err := c.transactionsFacet.Load(); err != nil {
-				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
-			}
-		case ExportsWithdrawals:
-			if err := c.withdrawalsFacet.Load(); err != nil {
-				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
-			}
+			// The balance store doesn't need explicit loading - it gets populated by the observer
 		case ExportsAssets:
 			if err := c.assetsFacet.Load(); err != nil {
 				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
 			}
-		case ExportsLogs:
-			if err := c.logsFacet.Load(); err != nil {
-				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
-			}
-		case ExportsTraces:
-			if err := c.tracesFacet.Load(); err != nil {
-				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
-			}
-		case ExportsReceipts:
-			if err := c.receiptsFacet.Load(); err != nil {
-				logging.LogError(fmt.Sprintf("LoadData.%s from store: %%v", dataFacet), err, facets.ErrAlreadyLoading)
+			// Also load names for asset enrichment
+			if err := c.namesFacet.Load(); err != nil {
+				logging.LogError(fmt.Sprintf("LoadData.names from store: %%v"), err, facets.ErrAlreadyLoading)
 			}
 		default:
 			logging.LogError("LoadData: unexpected dataFacet: %v", fmt.Errorf("invalid dataFacet: %s", dataFacet), nil)
@@ -310,22 +174,14 @@ func (c *ExportsCollection) Reset(dataFacet types.DataFacet) {
 	switch dataFacet {
 	case ExportsStatements:
 		c.statementsFacet.GetStore().Reset()
+		// Also reset balances since they depend on statements
+		c.balancesFacet.GetStore().Reset()
 	case ExportsBalances:
 		c.balancesFacet.GetStore().Reset()
-	case ExportsTransfers:
-		c.transfersFacet.GetStore().Reset()
-	case ExportsTransactions:
-		c.transactionsFacet.GetStore().Reset()
-	case ExportsWithdrawals:
-		c.withdrawalsFacet.GetStore().Reset()
 	case ExportsAssets:
 		c.assetsFacet.GetStore().Reset()
-	case ExportsLogs:
-		c.logsFacet.GetStore().Reset()
-	case ExportsTraces:
-		c.tracesFacet.GetStore().Reset()
-	case ExportsReceipts:
-		c.receiptsFacet.GetStore().Reset()
+		// Also reset names when assets are reset
+		c.namesFacet.GetStore().Reset()
 	default:
 		return
 	}
@@ -337,20 +193,8 @@ func (c *ExportsCollection) NeedsUpdate(dataFacet types.DataFacet) bool {
 		return c.statementsFacet.NeedsUpdate()
 	case ExportsBalances:
 		return c.balancesFacet.NeedsUpdate()
-	case ExportsTransfers:
-		return c.transfersFacet.NeedsUpdate()
-	case ExportsTransactions:
-		return c.transactionsFacet.NeedsUpdate()
-	case ExportsWithdrawals:
-		return c.withdrawalsFacet.NeedsUpdate()
 	case ExportsAssets:
 		return c.assetsFacet.NeedsUpdate()
-	case ExportsLogs:
-		return c.logsFacet.NeedsUpdate()
-	case ExportsTraces:
-		return c.tracesFacet.NeedsUpdate()
-	case ExportsReceipts:
-		return c.receiptsFacet.NeedsUpdate()
 	default:
 		return false
 	}
@@ -360,13 +204,7 @@ func (c *ExportsCollection) GetSupportedFacets() []types.DataFacet {
 	return []types.DataFacet{
 		ExportsStatements,
 		ExportsBalances,
-		ExportsTransfers,
-		ExportsTransactions,
-		ExportsWithdrawals,
 		ExportsAssets,
-		ExportsLogs,
-		ExportsTraces,
-		ExportsReceipts,
 	}
 }
 
@@ -384,7 +222,7 @@ func (c *ExportsCollection) AccumulateItem(item interface{}, summary *types.Summ
 		summary.FacetCounts = make(map[types.DataFacet]int)
 	}
 
-	switch v := item.(type) {
+	switch item.(type) {
 	case *Statement:
 		summary.TotalCount++
 		summary.FacetCounts[ExportsStatements]++
@@ -395,17 +233,6 @@ func (c *ExportsCollection) AccumulateItem(item interface{}, summary *types.Summ
 		stmtCount, _ := summary.CustomData["statementsCount"].(int)
 		stmtCount++
 		summary.CustomData["statementsCount"] = stmtCount
-
-	case *Transfer:
-		summary.TotalCount++
-		summary.FacetCounts[ExportsTransfers]++
-		if summary.CustomData == nil {
-			summary.CustomData = make(map[string]interface{})
-		}
-
-		transferCount, _ := summary.CustomData["transfersCount"].(int)
-		transferCount++
-		summary.CustomData["transfersCount"] = transferCount
 
 	case *Balance:
 		summary.TotalCount++
@@ -418,37 +245,16 @@ func (c *ExportsCollection) AccumulateItem(item interface{}, summary *types.Summ
 		balanceCount++
 		summary.CustomData["balancesCount"] = balanceCount
 
-	case *Transaction:
+	case *Asset:
 		summary.TotalCount++
-		summary.FacetCounts[ExportsTransactions]++
+		summary.FacetCounts[ExportsAssets]++
 		if summary.CustomData == nil {
 			summary.CustomData = make(map[string]interface{})
 		}
 
-		txCount, _ := summary.CustomData["transactionsCount"].(int)
-		totalValue, _ := summary.CustomData["totalValue"].(int64)
-		totalGasUsed, _ := summary.CustomData["totalGasUsed"].(int64)
-
-		txCount++
-		totalValue += int64(v.Value.Uint64())
-		if v.Receipt != nil {
-			totalGasUsed += int64(v.Receipt.GasUsed)
-		}
-
-		summary.CustomData["transactionsCount"] = txCount
-		summary.CustomData["totalValue"] = totalValue
-		summary.CustomData["totalGasUsed"] = totalGasUsed
-
-	case *Withdrawal:
-		summary.TotalCount++
-		summary.FacetCounts[ExportsWithdrawals]++
-		if summary.CustomData == nil {
-			summary.CustomData = make(map[string]interface{})
-		}
-
-		withdrawalCount, _ := summary.CustomData["withdrawalsCount"].(int)
-		withdrawalCount++
-		summary.CustomData["withdrawalsCount"] = withdrawalCount
+		assetCount, _ := summary.CustomData["assetsCount"].(int)
+		assetCount++
+		summary.CustomData["assetsCount"] = assetCount
 
 	}
 	// EXISTING_CODE

@@ -1,3 +1,12 @@
+import { describe, test } from 'vitest';
+
+// All tests in this file are currently commented out
+describe('PerPage (disabled)', () => {
+  test.skip('placeholder - all tests are commented out', () => {
+    // This is a placeholder test since all real tests are commented out
+  });
+});
+
 // Create mock function
 // const mockChangePageSize = vi.fn();
 
