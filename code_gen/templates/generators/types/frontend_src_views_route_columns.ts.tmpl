@@ -1,0 +1,88 @@
+{{- $class := .Class -}}
+{{- $lower := toLower $class -}}
+{{- $single := toSingular $class -}}
+{{- $hasCruds := .HasCruds -}}
+// Copyright 2016, 2026 The TrueBlocks Authors. All rights reserved.
+// Use of this source code is governed by a license that can
+// be found in the LICENSE file.
+/*
+ * Parts of this file were auto generated. Edit only those parts of
+ * the code inside of 'EXISTING_CODE' tags.
+ */
+import { FormField } from '@components';
+import { types } from '@models';
+
+// EXISTING_CODE
+// EXISTING_CODE
+
+// Column configurations for the {{$class}} data facets
+
+export const getColumns = (dataFacet: types.DataFacet): FormField[] => {
+  switch (dataFacet) {
+    {{- range .Facets }}
+    case types.DataFacet.{{ toUpper .Name }}:
+      return get{{ .Store }}Columns();
+    {{- end }}
+    default:
+      return [];
+  }
+};
+
+{{range .Stores -}}
+const get{{.Name}}Columns = (): FormField[] => [
+  // EXISTING_CODE
+  // EXISTING_CODE
+  {{- range .Members -}}
+  {{- $isSortable := contains .Attributes "sorts" -}}
+  {{- $isReadOnly := contains .Attributes "readOnly" -}}
+  {{- $isRequired := contains .Attributes "required" -}}
+  {{- $inUi := not (contains .Attributes "noui") -}}
+  {{- $isCalc := contains .Attributes "calc" -}}
+  {{- if $inUi}}
+  {
+    key: '{{ .Name }}',
+    name: '{{ .Name }}',
+    header: '{{ toHeader .Name }}',
+    label: '{{ toHeader .Name }}',
+{{- if $isRequired}}
+    required: true,
+{{- end}}
+{{- if $isSortable}}
+    sortable: true,
+{{- end}}
+    type: '{{ .UiType }}',
+    width: '{{ .Width }}px',
+{{- if $isReadOnly}}
+    readOnly: true,
+{{- end}}
+{{- if $isCalc}}
+    render: render{{firstUpper .Name}},
+{{- end}}
+  },{{end}}
+  {{- end -}}
+  {{- if $hasCruds}}
+  {
+    key: 'actions',
+    name: 'actions',
+    header: 'Actions',
+    label: 'Actions',
+    editable: false,
+    visible: true,
+    type: 'button',
+    width: '80px',
+  },{{end}}
+];
+
+{{end -}}
+{{- range .CalcMembers -}}
+export function render{{ firstUpper . }}(row: Record<string, unknown>) {
+  if (row != null) {
+    // EXISTING_CODE
+    // EXISTING_CODE
+  }
+  return '';
+}
+
+{{end -}}
+// EXISTING_CODE
+// EXISTING_CODE

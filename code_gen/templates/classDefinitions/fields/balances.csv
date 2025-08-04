@@ -1,0 +1,11 @@
+name            , type   , strDefault, attributes    , upgrades, docOrder, description
+blockNumber     , int64  ,           ,      ,         ,        1, Block
+transactionIndex, int64  ,           ,      ,         ,        2, Tx Index
+holder          , address,           , readOnly,         ,        3, Holder
+address         , address,           , readOnly,         ,        4, Token Address
+symbol          , string ,           ,         ,         ,        5, Symbol
+name            , string ,           ,         ,         ,        6, Token Name
+balance         , ether  ,           ,      ,         ,        7, Balance
+priorBalance    , ether  ,           , calc,         ,        8, Prior Balance
+decimals        , int64  ,           ,      ,         ,        9, Decimals
+actions         , string ,           , width=120px   ,         ,       10, Actions

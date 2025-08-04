@@ -1,0 +1,62 @@
+.homeContainer {
+  width: 100%;
+}
+
+.dashboardGrid {
+  --card-transition: all 0.15s ease;
+}
+
+.panelCard {
+  transition: var(--card-transition);
+}
+
+.panelCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.sampleImageContainer {
+  transition: var(--card-transition);
+}
+
+.sampleImageContainer:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.quickActionsContainer {
+  transition: var(--card-transition);
+}
+
+.activityContainer {
+  flex: 1;
+  transition: var(--card-transition);
+}
+
+/* Dark theme support */
+[data-mantine-color-scheme='dark'] .panelCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-mantine-color-scheme='dark'] .sampleImageContainer:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .rightColumn {
+    gap: 0.75rem;
+  }
+
+  .panelCard:hover,
+  .sampleImageContainer:hover {
+    transform: none;
+  }
+}

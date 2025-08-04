@@ -1,0 +1,10 @@
+node_modules
+databases
+bin/
+*.exe
+*.test
+*.out
+*.log
+*.tmp
+*.swp
+.DS_Store

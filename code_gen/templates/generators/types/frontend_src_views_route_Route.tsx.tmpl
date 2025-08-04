@@ -1,0 +1,435 @@
+{{- $class := .Class -}}
+{{/* TODO: remove this */}}
+{{- if ne $class "Contracts" -}}
+{{- $lower := toLower $class -}}
+{{- $single := toSingular $class -}}
+
+{{/* Determine View Type */}}
+{{- $isReadOnly := or (or (eq $class "Chunks") (eq $class "Exports")) (eq $class "Status") -}}
+{{- $isNames := eq $class "Names" -}}
+{{- $isAbis := eq $class "Abis" -}}
+{{- $isMonitors := eq $class "Monitors" -}}
+{{- $isAction := or $isAbis $isMonitors -}}
+
+{{/* Determine Features */}}
+{{- $hasCrud := or $isNames $isAction -}}
+{{- $hasForms := .HasForms -}}
+{{- $hasDelete := contains .CrudStrs "delete" -}}
+{{- $cruds := replace .CrudStrs ", 'undelete'" "" -}}
+
+{{/* Build API imports based on view type */}}
+{{- $apis := printf "Get%sPage, Reload" $class -}}
+{{- if $hasCrud -}}
+  {{- $apis = printf "Get%sPage, %sCrud, Reload" $class $class -}}
+{{- end -}}
+
+// Copyright 2016, 2026 The TrueBlocks Authors. All rights reserved.
+// Use of this source code is governed by a license that can
+// be found in the LICENSE file.
+/*
+ * Parts of this file were auto generated. Edit only those parts of
+ * the code inside of 'EXISTING_CODE' tags.
+ */
+
+// === SECTION 1: Imports & Dependencies ===
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { {{$apis}} } from '@app';
+import { BaseTab, usePagination } from '@components';
+{{- if $hasCrud}}
+import { Action{{if $isNames}}, ConfirmModal{{end}} } from '@components';
+{{- end}}
+import { useFiltering, useSorting } from '@contexts';
+import { DataFacetConfig, toPageDataProp, useActiveFacet, useColumns, useEvent, usePayload } from '@hooks';
+{{- if $hasCrud}}
+import { {{if $isNames}}ActionType, useActionMsgs, {{end}}useActions{{if $isNames}}, useSilencedDialog{{end}} } from '@hooks';
+{{- end}}
+import { {{if $hasForms}}FormView, {{end}}TabView } from '@layout';
+import { useHotkeys } from '@mantine/hooks';
+import { {{$lower}} } from '@models';
+import { msgs, project, types } from '@models';
+import { Debugger, useErrorHandler } from '@utils';
+{{- if $hasCrud}}
+import { Group } from '@mantine/core';
+{{- end}}
+import { getColumns } from './columns';
+import { {{$lower}}Facets } from './facets';
+
+export const ROUTE = '{{$lower}}' as const;
+export const {{$class}} = () => {
+  // === SECTION 2: Hook Initialization ===
+  const renderCnt = useRef(0);
+  const createPayload = usePayload();
+  const activeFacetHook = useActiveFacet({
+    facets: {{$lower}}Facets,
+    viewRoute: ROUTE,
+  });
+  const { availableFacets, getCurrentDataFacet } = activeFacetHook;
+
+  const [pageData, setPageData] = useState<{{$lower}}.{{$class}}Page | null>(null);
+  const viewStateKey = useMemo(
+    (): project.ViewStateKey => ({
+      viewName: ROUTE,
+      facetName: getCurrentDataFacet(),
+    }),
+    [getCurrentDataFacet],
+  );
+
+  const { error, handleError, clearError } = useErrorHandler();
+  const { pagination, setTotalItems{{if $hasCrud}}, goToPage{{end}} } = usePagination(viewStateKey);
+  const { sort } = useSorting(viewStateKey);
+  const { filter } = useFiltering(viewStateKey);
+
+  {{if $isNames}}
+  // Names-specific state
+  const { emitSuccess } = useActionMsgs('names');
+  const [confirmModal, setConfirmModal] = useState<{
+    opened: boolean;
+    address: string;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    opened: false,
+    address: '',
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+  const { isSilenced } = useSilencedDialog('createCustomName');
+  {{end}}
+
+  // === SECTION 3: Data Fetching ===
+  const fetchData = useCallback(async () => {
+    clearError();
+    try {
+      const result = await Get{{$class}}Page(
+        createPayload(getCurrentDataFacet()),
+        pagination.currentPage * pagination.pageSize,
+        pagination.pageSize,
+        sort,
+        filter,
+      );
+      setPageData(result);
+      setTotalItems(result.totalItems || 0);
+    } catch (err: unknown) {
+      handleError(err, `Failed to fetch ${getCurrentDataFacet()}`);
+    }
+  }, [
+    clearError,
+    createPayload,
+    getCurrentDataFacet,
+    pagination.currentPage,
+    pagination.pageSize,
+    sort,
+    filter,
+    setTotalItems,
+    handleError,
+  ]);
+
+  const currentData = useMemo(() => {
+    if (!pageData) return [];
+    const facet = getCurrentDataFacet();
+    switch (facet) {
+      {{range .Facets}}case types.DataFacet.{{toUpper .Name}}:
+        return pageData.{{toLower .Store}} || [];
+      {{end -}}
+      default:
+        return [];
+    }
+  }, [pageData, getCurrentDataFacet]);
+
+  // === SECTION 4: Event Handling ===
+  useEvent(
+    msgs.EventType.DATA_LOADED,
+    (_message: string, payload?: Record<string, unknown>) => {
+      if (payload?.collection === '{{$lower}}') {
+        const eventDataFacet = payload.dataFacet;
+        if (eventDataFacet === getCurrentDataFacet()) {
+          fetchData();
+        }
+      }
+    },
+  );
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleReload = useCallback(async () => {
+    clearError();
+    try {
+      Reload(createPayload(getCurrentDataFacet())).then(() => {
+        // The data will reload when the DataLoaded event is fired.
+      });
+    } catch (err: unknown) {
+      handleError(err, `Failed to reload ${getCurrentDataFacet()}`);
+    }
+  }, [clearError, getCurrentDataFacet, createPayload, handleError]);
+
+  useHotkeys([['mod+r', handleReload]]);
+
+  {{- if $hasCrud}}
+
+  // === SECTION 5: CRUD Operations ===
+  {{if $isNames -}}
+  const enabledActions = useMemo(() => {
+    const currentFacet = getCurrentDataFacet();
+    if (currentFacet === types.DataFacet.CUSTOM) {
+      return ['add', 'publish', 'pin', 'delete', 'remove', 'autoname', 'update'] as ActionType[];
+    }
+    if (currentFacet === types.DataFacet.BADDRESS) {
+      return ['add'] as ActionType[];
+    }
+    return ['add', 'autoname', 'update'] as ActionType[];
+  }, [getCurrentDataFacet]);
+  {{end -}}
+
+  const { handlers, config } = useActions({
+    collection: '{{$lower}}',
+    viewStateKey,
+    pagination,
+    goToPage,
+    sort,
+    filter,
+    enabledActions{{if not $isNames}}: [{{$cruds}}]{{end}},
+    pageData,
+    setPageData,
+    setTotalItems,
+    crudFunc: {{$class}}Crud,
+    pageFunc: Get{{$class}}Page,
+    pageClass: {{$lower}}.{{$class}}Page,
+    updateItem: types.{{$single}}.createFrom({}),
+    {{- if $isNames}}
+    postFunc: useCallback((item: types.Name): types.Name => {
+      item = types.Name.createFrom({
+        ...item,
+        source: item.source || 'TrueBlocks',
+      });
+      return item;
+    }, []),
+    {{end -}}
+    createPayload,
+    getCurrentDataFacet,
+  });
+
+  {{if $isNames}}
+  const { handleAutoname: originalHandleAutoname, handleRemove, handleToggle, handleUpdate } = handlers;
+
+  const handleAutoname = useCallback(
+    (address: string) => {
+      const currentFacet = getCurrentDataFacet();
+      if (currentFacet === types.DataFacet.CUSTOM || isSilenced) {
+        originalHandleAutoname(address);
+        emitSuccess('autoname', 'Successfully created custom name for ${address}');
+        if (currentFacet === types.DataFacet.CUSTOM) {
+          fetchData();
+        } else {
+          activeFacetHook.setActiveFacet(types.DataFacet.CUSTOM);
+        }
+        return;
+      }
+      setConfirmModal({
+        opened: true,
+        address,
+        title: 'Create Custom Name',
+        message:
+          'This will create a custom name for this address. The new custom name will be available in the Custom tab.',
+        onConfirm: () => {
+          originalHandleAutoname(address);
+          emitSuccess('autoname', 'Successfully created custom name for ${address}');
+          activeFacetHook.setActiveFacet(types.DataFacet.CUSTOM);
+          setConfirmModal((prev) => ({ ...prev, opened: false }));
+        },
+      });
+    },
+    [getCurrentDataFacet, isSilenced, originalHandleAutoname, emitSuccess, activeFacetHook, fetchData],
+  );
+  {{- else}}
+  const { {{.Handlers}} } = handlers;
+  {{- end}}
+
+  const headerActions = useMemo(() => {
+    if (!config.headerActions?.length) return null;
+    return (
+      <Group gap="xs" style={ { flexShrink: 0 } }>
+        {config.headerActions.map((action) => {
+          const handlerKey = `handle${action.type.charAt(0).toUpperCase() + action.type.slice(1)}` as keyof typeof handlers;
+          const handler = handlers[handlerKey] as () => void;
+          return (
+            <Action
+              key={action.type}
+              icon={action.icon as keyof ReturnType<typeof import('@hooks').useIconSets>}
+              onClick={handler}
+              title={action.requiresWallet && !config.isWalletConnected
+                ? `${action.title} (requires wallet connection)`
+                : action.title}
+              size="sm"
+            />
+          );
+        })}
+      </Group>
+    );
+  }, [config.headerActions, config.isWalletConnected, handlers]);
+  {{end}}
+
+  // === SECTION 6: UI Configuration ===
+  const currentColumns = useColumns(
+    getColumns(getCurrentDataFacet()),
+    {
+      showActions: {{if $hasCrud}}true{{else}}false{{end}},
+      actions: [{{if $hasCrud}}{{$cruds}}{{end}}],
+      getCanRemove: useCallback(
+        {{- if or $isNames $isMonitors }}
+        (row: unknown) => Boolean((row as unknown as types.{{$single}})?.deleted),
+        {{- else if $isAbis }}
+        (_row: unknown) => getCurrentDataFacet() === types.DataFacet.DOWNLOADED,
+        {{- else}}
+        (_row: unknown) => false,
+        {{- end}}
+        [{{if $isNames}}{{end}}{{if $isAbis}}getCurrentDataFacet{{end}}]
+      ),
+    },
+    {{if $hasCrud}}{
+      {{.HandlerStrs}}
+    }{{else}}{}{{end}},
+    toPageDataProp(pageData),
+    {{if $hasCrud}}config{{else}}{ rowActions: [] }{{end}},
+  );
+
+  {{if $hasForms}}
+  const isForm = useCallback((facet: types.DataFacet) => {
+    switch (facet) {
+      {{range .Facets}}{{if or .IsForm .IsDashboard}}case types.DataFacet.{{toUpper .Name}}:
+        return true;
+      {{end}}{{end}}default:
+        return false;
+    }
+  }, []);
+  {{end}}
+
+  const perTabContent = useMemo(() => {
+    {{if $hasForms}}
+    const facet = getCurrentDataFacet();
+    if (isForm(facet)) {
+      const {{$lower}}Data = currentData[0] as unknown as Record<string, unknown>;
+      if (!{{$lower}}Data) {
+        return <div>No {{$lower}} data available</div>;
+      }
+      return (
+        <FormView
+          title="{{toProper $lower}} Information"
+          formFields={getColumns(getCurrentDataFacet()).map((field) => {
+            let value = {{$lower}}Data?.[field.name as string] ?? field.value;
+            if (value !== undefined && 
+                typeof value !== 'string' && 
+                typeof value !== 'number' && 
+                typeof value !== 'boolean') {
+              value = JSON.stringify(value);
+            }
+            if (value !== undefined && 
+                typeof value !== 'string' && 
+                typeof value !== 'number' && 
+                typeof value !== 'boolean') {
+              value = undefined;
+            }
+            return {
+              ...field,
+              value,
+              readOnly: true,
+            };
+          })}
+          onSubmit={() => {}}
+        />
+      );
+    }
+    {{end}}
+
+    return (
+      <BaseTab<Record<string, unknown>>
+        data={currentData as unknown as Record<string, unknown>[]}
+        columns={currentColumns}
+        loading={!!pageData?.isFetching}
+        error={error}
+        viewStateKey={viewStateKey}
+        headerActions={ {{if $hasCrud}}headerActions{{else}}[]{{end}} }
+        {{if $hasCrud}}
+        {{if $hasDelete}}
+        onDelete={(rowData) => handleToggle(String(rowData.address || ''))}
+        {{end}}
+        onRemove={(rowData) => handleRemove(String(rowData.address || ''))}
+        {{if $isNames}}
+        onAutoname={(rowData) => handleAutoname(String(rowData.address || ''))}
+        onSubmit={handleUpdate}
+        {{end}}
+        {{end}}
+      />
+    );
+  }, [
+    currentData,
+    currentColumns,
+    pageData?.isFetching,
+    error,
+    viewStateKey,
+    {{- if $hasForms}}
+    isForm,
+    getCurrentDataFacet,
+    {{- end}}
+    {{- if $hasCrud}}
+    headerActions,
+    {{- if $hasDelete}}
+    handleToggle,
+    {{- end}}
+    handleRemove,
+    {{- if $isNames}}
+    handleAutoname,
+    handleUpdate,
+    {{- end}}
+    {{- end}}
+  ]);
+
+  const tabs = useMemo(
+    () =>
+      availableFacets.map((facetConfig: DataFacetConfig) => ({
+        key: facetConfig.id,
+        label: facetConfig.label,
+        value: facetConfig.id,
+        content: perTabContent,
+        dividerBefore: facetConfig.dividerBefore,
+      })),
+    [availableFacets, perTabContent],
+  );
+
+  // === SECTION 7: Render ===
+  return (
+    <div className="mainView">
+      <TabView tabs={tabs} route={ROUTE} />
+      {error && (
+        <div>
+          <h3>{`Error fetching ${getCurrentDataFacet()}`}</h3>
+          <p>{error.message}</p>
+        </div>
+      )}
+      <Debugger
+        rowActions={ {{if $hasCrud}}config.rowActions{{else}}[]{{end}} }
+        headerActions={ {{if $hasCrud}}config.headerActions{{else}}[]{{end}} }
+        count={++renderCnt.current}
+      />
+      {{if $isNames}}<ConfirmModal
+        opened={confirmModal.opened}
+        onClose={useCallback(
+          () => setConfirmModal((prev) => ({ ...prev, opened: false })),
+          [],
+        )}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        dialogKey="confirm{{$class}}Modal"
+      />
+      {{end}}
+    </div>
+  );
+};
+
+// EXISTING_CODE
+// EXISTING_CODE
+{{- end -}}
