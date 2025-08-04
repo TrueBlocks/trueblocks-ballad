@@ -19,10 +19,9 @@ type DataLoadedPayload struct {
 }
 
 type ProjectPayload struct {
-	HasProject     bool                 `json:"hasProject"`
-	ActiveChain    string               `json:"activeChain"`
-	ActiveAddress  string               `json:"activeAddress"`
-	ActiveContract string               `json:"activeContract"`
-	LastView       string               `json:"lastView"`
-	LastFacetMap   map[string]DataFacet `json:"lastFacetMap"`
+	HasProject    bool                 `json:"hasProject"`
+	ActiveChain   string               `json:"activeChain"`
+	ActiveAddress string               `json:"activeAddress"`
+	LastView      string               `json:"lastView"`
+	LastFacetMap  map[string]DataFacet `json:"lastFacetMap"`
 }

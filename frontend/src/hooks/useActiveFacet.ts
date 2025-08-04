@@ -47,7 +47,7 @@ export const useActiveFacet = ({
 
   const getDefaultFacet = useCallback((): DataFacet => {
     const firstFacet = facets[0];
-    return firstFacet ? firstFacet.id : types.DataFacet.DASHBOARD;
+    return firstFacet ? firstFacet.id : types.DataFacet.STATEMENTS;
   }, [facets]);
 
   const activeFacet = useMemo((): DataFacet => {

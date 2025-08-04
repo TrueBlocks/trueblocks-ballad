@@ -12,7 +12,7 @@ export const Debugger: React.FC<DebuggerProps> = ({
   headerActions,
   count,
 }) => {
-  const { activeChain, activeAddress, activeContract } = useActiveProject();
+  const { activeChain, activeAddress } = useActiveProject();
   const { debugCollapsed } = usePreferences();
   if (debugCollapsed) {
     return <></>;
@@ -36,7 +36,7 @@ export const Debugger: React.FC<DebuggerProps> = ({
           fontWeight: 'bold',
         }}
       >
-        {`Renders: ${count} [${activeChain || 'N/A'}] [${activeAddress || 'N/A'}] [${activeContract || 'N/A'}]`}
+        {`Renders: ${count} [${activeChain || 'N/A'}] [${activeAddress || 'N/A'}]`}
       </div>
     </>
   );

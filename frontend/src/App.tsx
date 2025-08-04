@@ -85,7 +85,7 @@ export const App = () => {
     setShowProjectModal(false);
   });
 
-  const { ready, isWizard } = useAppNavigation();
+  const { ready } = useAppNavigation();
   const { menuCollapsed, helpCollapsed } = usePreferences();
 
   useAppHotkeys();
@@ -129,7 +129,7 @@ export const App = () => {
             aside={aside}
           >
             <Header />
-            <MenuBar disabled={isWizard} />
+            <MenuBar />
             <ViewContextProvider>
               <MainView />
             </ViewContextProvider>

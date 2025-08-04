@@ -295,16 +295,16 @@ func TestConcurrencyBasic(t *testing.T) {
 }
 
 func TestReloadCancellation(t *testing.T) {
-	abisAddr := base.ZeroAddr.Hex()
-	renderCtx := RegisterContext(abisAddr)
+	testAddr := base.ZeroAddr.Hex()
+	renderCtx := RegisterContext(testAddr)
 
-	assert.Equal(t, 1, ctxCount(abisAddr), "Expected 1 registered context")
+	assert.Equal(t, 1, ctxCount(testAddr), "Expected 1 registered context")
 	assert.NotNil(t, renderCtx, "RegisterContext should return non-nil context")
 
-	cancelled, found := UnregisterContext(abisAddr)
+	cancelled, found := UnregisterContext(testAddr)
 	assert.True(t, found, "UnregisterContext should find the registered context")
 	assert.Equal(t, 1, cancelled, "Expected 1 cancelled context")
-	assert.Equal(t, 0, ctxCount(abisAddr), "Expected 0 registered contexts after reload")
+	assert.Equal(t, 0, ctxCount(testAddr), "Expected 0 registered contexts after reload")
 
 	// Note: We can't easily test if the context was actually cancelled since
 	// the Cancel method removes it from the map, but the fact that it was

@@ -10,39 +10,15 @@ import { toProperCase } from 'src/utils/toProper';
 
 export const exportsFacets: DataFacetConfig[] = [
   {
-    id: types.DataFacet.STATEMENTS,
-    label: toProperCase(types.DataFacet.STATEMENTS),
+    id: types.DataFacet.ASSETS,
+    label: toProperCase(types.DataFacet.ASSETS),
   },
   {
     id: types.DataFacet.BALANCES,
     label: toProperCase(types.DataFacet.BALANCES),
   },
   {
-    id: types.DataFacet.TRANSFERS,
-    label: toProperCase(types.DataFacet.TRANSFERS),
-  },
-  {
-    id: types.DataFacet.TRANSACTIONS,
-    label: toProperCase(types.DataFacet.TRANSACTIONS),
-  },
-  {
-    id: types.DataFacet.WITHDRAWALS,
-    label: toProperCase(types.DataFacet.WITHDRAWALS),
-  },
-  {
-    id: types.DataFacet.ASSETS,
-    label: toProperCase(types.DataFacet.ASSETS),
-  },
-  {
-    id: types.DataFacet.LOGS,
-    label: toProperCase(types.DataFacet.LOGS),
-  },
-  {
-    id: types.DataFacet.TRACES,
-    label: toProperCase(types.DataFacet.TRACES),
-  },
-  {
-    id: types.DataFacet.RECEIPTS,
-    label: toProperCase(types.DataFacet.RECEIPTS),
+    id: types.DataFacet.STATEMENTS,
+    label: toProperCase(types.DataFacet.STATEMENTS),
   },
 ];

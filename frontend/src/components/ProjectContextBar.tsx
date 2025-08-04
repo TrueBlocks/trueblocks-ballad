@@ -17,10 +17,8 @@ export const ProjectContextBar = ({
     projects,
     activeAddress,
     activeChain,
-    activeContract,
     setActiveAddress,
     setActiveChain,
-    setActiveContract,
     switchProject,
     loading,
   } = useActiveProject();
@@ -44,8 +42,6 @@ export const ProjectContextBar = ({
       label: chain,
     })) || [];
 
-  const contractOptions = [{ value: '', label: 'No Contract' }];
-
   const handleProjectChange = async (projectId: string | null) => {
     if (projectId && projectId !== currentProject?.id) {
       await switchProject(projectId);
@@ -61,13 +57,6 @@ export const ProjectContextBar = ({
   const handleChainChange = async (chain: string | null) => {
     if (chain && chain !== activeChain) {
       await setActiveChain(chain);
-    }
-  };
-
-  const handleContractChange = async (contract: string | null) => {
-    const contractValue = contract || '';
-    if (contractValue !== activeContract) {
-      await setActiveContract(contractValue);
     }
   };
 
@@ -110,14 +99,6 @@ export const ProjectContextBar = ({
           data={chainOptions}
           onChange={handleChainChange}
           w={100}
-        />
-        <Select
-          size="xs"
-          placeholder="Contract"
-          value={activeContract}
-          data={contractOptions}
-          onChange={handleContractChange}
-          w={140}
         />
       </Group>
     );
@@ -172,20 +153,6 @@ export const ProjectContextBar = ({
           data={chainOptions}
           onChange={handleChainChange}
           w={150}
-        />
-      </Group>
-
-      <Group gap="xs">
-        <Text size="sm" fw={500}>
-          Contract:
-        </Text>
-        <Select
-          size="sm"
-          placeholder="Select contract"
-          value={activeContract}
-          data={contractOptions}
-          onChange={handleContractChange}
-          w={200}
         />
       </Group>
     </Group>

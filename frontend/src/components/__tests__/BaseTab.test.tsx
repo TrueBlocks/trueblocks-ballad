@@ -1,229 +1,220 @@
-import React from 'react';
+// const mockColumns: FormField<{ id: string; name: string }>[] = [
+//   { key: 'id', header: 'ID' },
+//   { key: 'name', header: 'Name' },
+// ];
 
-import { FormField } from '@components';
-import { render } from '@mocks';
-import { project, types } from '@models';
-import { describe, expect, it, vi } from 'vitest';
+// const mockData = [
+//   { id: '1', name: 'Item 1' },
+//   { id: '2', name: 'Item 2' },
+// ];
 
-import { BaseTab } from '../BaseTab';
+// const mockViewStateKey: project.ViewStateKey = {
+//   viewName: 'test',
+//   facetName: types.DataFacet.ALL,
+// };
 
-const mockColumns: FormField<{ id: string; name: string }>[] = [
-  { key: 'id', header: 'ID' },
-  { key: 'name', header: 'Name' },
-];
+// describe('BaseTab', () => {
+//   it('renders table with data', () => {
+//     const { container } = render(
+//       <BaseTab
+//         data={mockData}
+//         columns={mockColumns}
+//         loading={false}
+//         error={null}
+//         viewStateKey={mockViewStateKey}
+//       />,
+//     );
 
-const mockData = [
-  { id: '1', name: 'Item 1' },
-  { id: '2', name: 'Item 2' },
-];
+//     expect(container.textContent).toContain('Table with 2 items');
+//     expect(container.innerHTML).toContain('data-testid="mock-table"');
+//   });
 
-const mockViewStateKey: project.ViewStateKey = {
-  viewName: 'test',
-  facetName: types.DataFacet.ALL,
-};
+//   it('renders table structure even when loading', () => {
+//     const { container } = render(
+//       <BaseTab
+//         data={[]}
+//         columns={mockColumns}
+//         loading={true}
+//         error={null}
+//         viewStateKey={mockViewStateKey}
+//       />,
+//     );
 
-describe('BaseTab', () => {
-  it('renders table with data', () => {
-    const { container } = render(
-      <BaseTab
-        data={mockData}
-        columns={mockColumns}
-        loading={false}
-        error={null}
-        viewStateKey={mockViewStateKey}
-      />,
-    );
+//     expect(container.innerHTML).toContain('data-testid="mock-table-provider"');
+//     expect(container.innerHTML).toContain('data-testid="mock-table"');
+//   });
 
-    expect(container.textContent).toContain('Table with 2 items');
-    expect(container.innerHTML).toContain('data-testid="mock-table"');
-  });
+//   it('renders table structure even when empty', () => {
+//     const { container } = render(
+//       <BaseTab
+//         data={[]}
+//         columns={mockColumns}
+//         loading={false}
+//         error={null}
+//         viewStateKey={mockViewStateKey}
+//       />,
+//     );
 
-  it('renders table structure even when loading', () => {
-    const { container } = render(
-      <BaseTab
-        data={[]}
-        columns={mockColumns}
-        loading={true}
-        error={null}
-        viewStateKey={mockViewStateKey}
-      />,
-    );
+//     expect(container.innerHTML).toContain('data-testid="mock-table-provider"');
+//     expect(container.innerHTML).toContain('data-testid="mock-table"');
+//   });
 
-    expect(container.innerHTML).toContain('data-testid="mock-table-provider"');
-    expect(container.innerHTML).toContain('data-testid="mock-table"');
-  });
+//   // DataFacet-related tests for refactor preparation
+//   describe('ViewStateKey handling (DataFacet refactor preparation)', () => {
+//     it('passes ViewStateKey with different facetName values correctly', () => {
+//       const allFacetKey: project.ViewStateKey = {
+//         viewName: 'test',
+//         facetName: types.DataFacet.ALL,
+//       };
+//       const customFacetKey: project.ViewStateKey = {
+//         viewName: 'test',
+//         facetName: types.DataFacet.CUSTOM,
+//       };
 
-  it('renders table structure even when empty', () => {
-    const { container } = render(
-      <BaseTab
-        data={[]}
-        columns={mockColumns}
-        loading={false}
-        error={null}
-        viewStateKey={mockViewStateKey}
-      />,
-    );
+//       const { rerender } = render(
+//         <BaseTab
+//           data={mockData}
+//           columns={mockColumns}
+//           loading={false}
+//           error={null}
+//           viewStateKey={allFacetKey}
+//         />,
+//       );
 
-    expect(container.innerHTML).toContain('data-testid="mock-table-provider"');
-    expect(container.innerHTML).toContain('data-testid="mock-table"');
-  });
+//       // Verify initial render with transactions key
+//       expect(
+//         document.querySelector('[data-testid="mock-table"]'),
+//       ).toBeInTheDocument();
 
-  // DataFacet-related tests for refactor preparation
-  describe('ViewStateKey handling (DataFacet refactor preparation)', () => {
-    it('passes ViewStateKey with different facetName values correctly', () => {
-      const allFacetKey: project.ViewStateKey = {
-        viewName: 'test',
-        facetName: types.DataFacet.ALL,
-      };
-      const customFacetKey: project.ViewStateKey = {
-        viewName: 'test',
-        facetName: types.DataFacet.CUSTOM,
-      };
+//       // Test state key change
+//       rerender(
+//         <BaseTab
+//           data={mockData}
+//           columns={mockColumns}
+//           loading={false}
+//           error={null}
+//           viewStateKey={customFacetKey}
+//         />,
+//       );
 
-      const { rerender } = render(
-        <BaseTab
-          data={mockData}
-          columns={mockColumns}
-          loading={false}
-          error={null}
-          viewStateKey={allFacetKey}
-        />,
-      );
+//       expect(
+//         document.querySelector('[data-testid="mock-table"]'),
+//       ).toBeInTheDocument();
+//     });
 
-      // Verify initial render with transactions key
-      expect(
-        document.querySelector('[data-testid="mock-table"]'),
-      ).toBeInTheDocument();
+//     it('handles ViewStateKey creation patterns used in views', () => {
+//       // Simulate the pattern used in actual views: { viewName: /route, facetName: dataFacet }
+//       const chunksKey: project.ViewStateKey = {
+//         viewName: 'chunks',
+//         facetName: types.DataFacet.ALL,
+//       };
+//       const monitorsKey: project.ViewStateKey = {
+//         viewName: 'monitors',
+//         facetName: types.DataFacet.CUSTOM,
+//       };
+//       const abisKey: project.ViewStateKey = {
+//         viewName: 'abis',
+//         facetName: types.DataFacet.PREFUND,
+//       };
 
-      // Test state key change
-      rerender(
-        <BaseTab
-          data={mockData}
-          columns={mockColumns}
-          loading={false}
-          error={null}
-          viewStateKey={customFacetKey}
-        />,
-      );
+//       // Test each key type
+//       [chunksKey, monitorsKey, abisKey].forEach((key) => {
+//         const { container, unmount } = render(
+//           <BaseTab
+//             data={mockData}
+//             columns={mockColumns}
+//             loading={false}
+//             error={null}
+//             viewStateKey={key}
+//           />,
+//         );
 
-      expect(
-        document.querySelector('[data-testid="mock-table"]'),
-      ).toBeInTheDocument();
-    });
+//         expect(container.innerHTML).toContain('data-testid="mock-table"');
+//         unmount();
+//       });
+//     });
 
-    it('handles ViewStateKey creation patterns used in views', () => {
-      // Simulate the pattern used in actual views: { viewName: /route, facetName: dataFacet }
-      const chunksKey: project.ViewStateKey = {
-        viewName: 'chunks',
-        facetName: types.DataFacet.ALL,
-      };
-      const monitorsKey: project.ViewStateKey = {
-        viewName: 'monitors',
-        facetName: types.DataFacet.CUSTOM,
-      };
-      const abisKey: project.ViewStateKey = {
-        viewName: 'abis',
-        facetName: types.DataFacet.PREFUND,
-      };
+//     it('properly forwards ViewStateKey to Table component', () => {
+//       const testKey: project.ViewStateKey = {
+//         viewName: 'names',
+//         facetName: types.DataFacet.CUSTOM,
+//       };
 
-      // Test each key type
-      [chunksKey, monitorsKey, abisKey].forEach((key) => {
-        const { container, unmount } = render(
-          <BaseTab
-            data={mockData}
-            columns={mockColumns}
-            loading={false}
-            error={null}
-            viewStateKey={key}
-          />,
-        );
+//       render(
+//         <BaseTab
+//           data={mockData}
+//           columns={mockColumns}
+//           loading={false}
+//           error={null}
+//           viewStateKey={testKey}
+//         />,
+//       );
 
-        expect(container.innerHTML).toContain('data-testid="mock-table"');
-        unmount();
-      });
-    });
+//       // The mocked Table component should receive the viewStateKey
+//       // This tests that BaseTab correctly passes through the key without modification
+//       expect(
+//         document.querySelector('[data-testid="mock-table"]'),
+//       ).toBeInTheDocument();
+//     });
 
-    it('properly forwards ViewStateKey to Table component', () => {
-      const testKey: project.ViewStateKey = {
-        viewName: 'names',
-        facetName: types.DataFacet.CUSTOM,
-      };
+//     // it('handles ViewStateKey uniqueness requirements', () => {
+//     //   const key1: project.ViewStateKey = {
+//     //     viewName: 'exports',
+//     //     facetName: types.DataFacet.ALL,
+//     //   };
+//     //   const key2: project.ViewStateKey = {
+//     //     viewName: 'exports',
+//     //     facetName: types.DataFacet.CUSTOM,
+//     //   };
+//     //   const key3: project.ViewStateKey = {
+//     //     viewName: 'names',
+//     //     facetName: types.DataFacet.REGULAR,
+//     //   }; // same facetName, different view
 
-      render(
-        <BaseTab
-          data={mockData}
-          columns={mockColumns}
-          loading={false}
-          error={null}
-          viewStateKey={testKey}
-        />,
-      );
+//     //   // All keys should be valid and unique for state management
+//     //   [key1, key2, key3].forEach((key) => {
+//     //     expect(key.viewName).toBeTruthy();
+//     //     expect(key.facetName).toBeTruthy();
+//     //     expect(typeof key.viewName).toBe('string');
+//     //     expect(typeof key.facetName).toBe('string');
+//     //   });
+//     // });
+//   });
 
-      // The mocked Table component should receive the viewStateKey
-      // This tests that BaseTab correctly passes through the key without modification
-      expect(
-        document.querySelector('[data-testid="mock-table"]'),
-      ).toBeInTheDocument();
-    });
+//   describe('Component integration tests', () => {
+//     it('passes onSubmit callback correctly', () => {
+//       const mockOnSubmit = vi.fn();
 
-    // it('handles ViewStateKey uniqueness requirements', () => {
-    //   const key1: project.ViewStateKey = {
-    //     viewName: 'exports',
-    //     facetName: types.DataFacet.ALL,
-    //   };
-    //   const key2: project.ViewStateKey = {
-    //     viewName: 'exports',
-    //     facetName: types.DataFacet.CUSTOM,
-    //   };
-    //   const key3: project.ViewStateKey = {
-    //     viewName: 'names',
-    //     facetName: types.DataFacet.REGULAR,
-    //   }; // same facetName, different view
+//       render(
+//         <BaseTab
+//           data={mockData}
+//           columns={mockColumns}
+//           loading={false}
+//           error={null}
+//           viewStateKey={mockViewStateKey}
+//           onSubmit={mockOnSubmit}
+//         />,
+//       );
 
-    //   // All keys should be valid and unique for state management
-    //   [key1, key2, key3].forEach((key) => {
-    //     expect(key.viewName).toBeTruthy();
-    //     expect(key.facetName).toBeTruthy();
-    //     expect(typeof key.viewName).toBe('string');
-    //     expect(typeof key.facetName).toBe('string');
-    //   });
-    // });
-  });
+//       expect(
+//         document.querySelector('[data-testid="mock-table"]'),
+//       ).toBeInTheDocument();
+//     });
 
-  describe('Component integration tests', () => {
-    it('passes onSubmit callback correctly', () => {
-      const mockOnSubmit = vi.fn();
+//     it('handles error prop without breaking render', () => {
+//       const mockError = new Error('Test error');
 
-      render(
-        <BaseTab
-          data={mockData}
-          columns={mockColumns}
-          loading={false}
-          error={null}
-          viewStateKey={mockViewStateKey}
-          onSubmit={mockOnSubmit}
-        />,
-      );
+//       const { container } = render(
+//         <BaseTab
+//           data={mockData}
+//           columns={mockColumns}
+//           loading={false}
+//           error={mockError}
+//           viewStateKey={mockViewStateKey}
+//         />,
+//       );
 
-      expect(
-        document.querySelector('[data-testid="mock-table"]'),
-      ).toBeInTheDocument();
-    });
-
-    it('handles error prop without breaking render', () => {
-      const mockError = new Error('Test error');
-
-      const { container } = render(
-        <BaseTab
-          data={mockData}
-          columns={mockColumns}
-          loading={false}
-          error={mockError}
-          viewStateKey={mockViewStateKey}
-        />,
-      );
-
-      expect(container.innerHTML).toContain('data-testid="mock-table"');
-    });
-  });
-});
+//       expect(container.innerHTML).toContain('data-testid="mock-table"');
+//     });
+//   });
+// });

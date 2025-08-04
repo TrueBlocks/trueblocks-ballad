@@ -5,8 +5,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/msgs"
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 	sdk "github.com/TrueBlocks/trueblocks-sdk/v5"
 )
 
@@ -69,13 +69,6 @@ func (a *App) RemoveAddressFromProject(addrStr string) error {
 	addr := base.HexToAddress(addrStr)
 	if active := a.GetActiveProject(); active != nil {
 		return active.RemoveAddress(addr)
-	}
-	return fmt.Errorf("no active project")
-}
-
-func (a *App) SetActiveContract(contract string) error {
-	if active := a.GetActiveProject(); active != nil {
-		return active.SetActiveContract(contract)
 	}
 	return fmt.Errorf("no active project")
 }

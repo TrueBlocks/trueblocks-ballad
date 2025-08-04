@@ -464,8 +464,6 @@ export namespace project {
 	    activeAddress: base.Address;
 	    chains: string[];
 	    activeChain: string;
-	    contracts: string[];
-	    activeContract: string;
 	    filterStates: Record<string, FilterState>;
 	
 	    static createFrom(source: any = {}) {
@@ -483,8 +481,6 @@ export namespace project {
 	        this.activeAddress = this.convertValues(source["activeAddress"], base.Address);
 	        this.chains = source["chains"];
 	        this.activeChain = source["activeChain"];
-	        this.contracts = source["contracts"];
-	        this.activeContract = source["activeContract"];
 	        this.filterStates = this.convertValues(source["filterStates"], FilterState, true);
 	    }
 	
@@ -793,7 +789,6 @@ export namespace types {
 	    hasProject: boolean;
 	    activeChain: string;
 	    activeAddress: string;
-	    activeContract: string;
 	    lastView: string;
 	    lastFacetMap: Record<string, string>;
 	
@@ -806,7 +801,6 @@ export namespace types {
 	        this.hasProject = source["hasProject"];
 	        this.activeChain = source["activeChain"];
 	        this.activeAddress = source["activeAddress"];
-	        this.activeContract = source["activeContract"];
 	        this.lastView = source["lastView"];
 	        this.lastFacetMap = source["lastFacetMap"];
 	    }

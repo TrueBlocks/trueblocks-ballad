@@ -3,10 +3,10 @@ package app
 import (
 	"fmt"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/msgs"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/project"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -213,12 +213,11 @@ func (a *App) GetActiveProjectData() *types.ProjectPayload {
 	project := a.GetActiveProject()
 	if project == nil {
 		return &types.ProjectPayload{
-			HasProject:     false,
-			ActiveChain:    "",
-			ActiveAddress:  "",
-			ActiveContract: "",
-			LastView:       "",
-			LastFacetMap:   make(map[string]types.DataFacet),
+			HasProject:    false,
+			ActiveChain:   "",
+			ActiveAddress: "",
+			LastView:      "",
+			LastFacetMap:  make(map[string]types.DataFacet),
 		}
 	}
 
@@ -239,12 +238,11 @@ func (a *App) GetActiveProjectData() *types.ProjectPayload {
 	}
 
 	return &types.ProjectPayload{
-		HasProject:     true,
-		ActiveChain:    project.GetActiveChain(),
-		ActiveAddress:  activeAddrStr,
-		ActiveContract: project.GetActiveContract(),
-		LastView:       project.GetLastView(),
-		LastFacetMap:   lastFacetMap,
+		HasProject:    true,
+		ActiveChain:   project.GetActiveChain(),
+		ActiveAddress: activeAddrStr,
+		LastView:      project.GetLastView(),
+		LastFacetMap:  lastFacetMap,
 	}
 }
 

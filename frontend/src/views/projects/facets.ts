@@ -8,12 +8,12 @@ interface ProjectsFacetConfig {
 
 export const projectsFacets: ProjectsFacetConfig[] = [
   {
-    facet: types.DataFacet.ALL,
+    facet: types.DataFacet.STATEMENTS,
     label: 'All Projects',
     description: 'All projects in your workspace',
   },
   {
-    facet: types.DataFacet.CUSTOM,
+    facet: types.DataFacet.BALANCES,
     label: 'Recent Projects',
     description: 'Recently accessed projects',
   },

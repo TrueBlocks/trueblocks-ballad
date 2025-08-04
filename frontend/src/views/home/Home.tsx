@@ -15,7 +15,6 @@ import { useUploadAddressesDialog } from './UploadAddressesDialog';
 
 export const Home = () => {
   const [_, setAppName] = useState('Your App');
-  const [, navigate] = useLocation();
   const uploadDialog = useUploadAddressesDialog();
 
   useEffect(() => {

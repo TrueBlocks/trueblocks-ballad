@@ -26,10 +26,6 @@ export function ClearActiveProject() {
   return window['go']['app']['App']['ClearActiveProject']();
 }
 
-export function ClearFilterState(arg1) {
-  return window['go']['app']['App']['ClearFilterState'](arg1);
-}
-
 export function CloseProject(arg1) {
   return window['go']['app']['App']['CloseProject'](arg1);
 }
@@ -110,10 +106,6 @@ export function GetFilename() {
   return window['go']['app']['App']['GetFilename']();
 }
 
-export function GetFilterState(arg1) {
-  return window['go']['app']['App']['GetFilterState'](arg1);
-}
-
 export function GetImageURL(arg1) {
   return window['go']['app']['App']['GetImageURL'](arg1);
 }
@@ -150,10 +142,6 @@ export function GetProjectAddress() {
   return window['go']['app']['App']['GetProjectAddress']();
 }
 
-export function GetProjectViewState(arg1) {
-  return window['go']['app']['App']['GetProjectViewState'](arg1);
-}
-
 export function GetRegisteredViews() {
   return window['go']['app']['App']['GetRegisteredViews']();
 }
@@ -164,10 +152,6 @@ export function GetTheme() {
 
 export function GetUserPreferences() {
   return window['go']['app']['App']['GetUserPreferences']();
-}
-
-export function GetWizardReturn() {
-  return window['go']['app']['App']['GetWizardReturn']();
 }
 
 export function HasActiveProject() {
@@ -238,10 +222,6 @@ export function SetActiveChain(arg1) {
   return window['go']['app']['App']['SetActiveChain'](arg1);
 }
 
-export function SetActiveContract(arg1) {
-  return window['go']['app']['App']['SetActiveContract'](arg1);
-}
-
 export function SetActiveProjectPath(arg1) {
   return window['go']['app']['App']['SetActiveProjectPath'](arg1);
 }
@@ -252,10 +232,6 @@ export function SetAppPreferences(arg1) {
 
 export function SetDebugCollapsed(arg1) {
   return window['go']['app']['App']['SetDebugCollapsed'](arg1);
-}
-
-export function SetFilterState(arg1, arg2) {
-  return window['go']['app']['App']['SetFilterState'](arg1, arg2);
 }
 
 export function SetHelpCollapsed(arg1) {
@@ -288,10 +264,6 @@ export function SetOrgPreferences(arg1) {
 
 export function SetProjectAddress(arg1) {
   return window['go']['app']['App']['SetProjectAddress'](arg1);
-}
-
-export function SetProjectViewState(arg1, arg2) {
-  return window['go']['app']['App']['SetProjectViewState'](arg1, arg2);
 }
 
 export function SetTheme(arg1) {
