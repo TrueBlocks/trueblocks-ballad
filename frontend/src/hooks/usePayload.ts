@@ -17,7 +17,7 @@ function validatePayloadAddress(address: string, context: string) {
 }
 
 export const usePayload = () => {
-  const { activeAddress, activeChain } = useActiveProject();
+  const { activeAddress, activeChain, activePeriod } = useActiveProject();
   return useCallback(
     (dataFacet: types.DataFacet, address?: string) => {
       const finalAddress = address || activeAddress;
@@ -30,8 +30,9 @@ export const usePayload = () => {
         dataFacet,
         chain: activeChain,
         address: finalAddress,
+        period: activePeriod,
       });
     },
-    [activeChain, activeAddress],
+    [activeChain, activeAddress, activePeriod],
   );
 };

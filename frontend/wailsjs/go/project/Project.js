@@ -14,6 +14,10 @@ export function GetActiveChain() {
   return window['go']['project']['Project']['GetActiveChain']();
 }
 
+export function GetActivePeriod() {
+  return window['go']['project']['Project']['GetActivePeriod']();
+}
+
 export function GetAddresses() {
   return window['go']['project']['Project']['GetAddresses']();
 }
@@ -56,6 +60,10 @@ export function SetActiveAddress(arg1) {
 
 export function SetActiveChain(arg1) {
   return window['go']['project']['Project']['SetActiveChain'](arg1);
+}
+
+export function SetActivePeriod(arg1) {
+  return window['go']['project']['Project']['SetActivePeriod'](arg1);
 }
 
 export function SetLastFacet(arg1, arg2) {

@@ -1,129 +1,187 @@
 package store
 
 import (
+	"fmt"
+	"reflect"
 	"sync"
 	"time"
+
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
 )
 
-// Period defines aggregation periods for summary data
-type Period string
-
-const (
-	PeriodBlockly   Period = "blockly"   // No aggregation (default - returns raw data)
-	PeriodHourly    Period = "hourly"    // Aggregate by hour
-	PeriodDaily     Period = "daily"     // Aggregate by day
-	PeriodWeekly    Period = "weekly"    // Aggregate by week
-	PeriodMonthly   Period = "monthly"   // Aggregate by month
-	PeriodQuarterly Period = "quarterly" // Aggregate by quarter
-	PeriodAnnual    Period = "annual"    // Aggregate by year
-)
-
-// SummaryKey uniquely identifies a summary record by timestamp and period
+// SummaryKey represents a unique key for summary data based on normalized timestamp and period
 type SummaryKey struct {
-	Timestamp int64  // Unix timestamp for the period boundary
-	Period    Period // Aggregation period
+	Timestamp int64
+	Period    string
+	AssetAddr string // Asset address for balance-specific summarization
 }
 
-// SummaryManager manages aggregated summary data for a store
+// SummaryManager manages aggregated summary data for different time periods
 type SummaryManager[T any] struct {
-	summaries map[SummaryKey]*T // Map of summary records by time period
-	mutex     sync.RWMutex      // Protects concurrent access
+	summaries map[SummaryKey][]*T
+	mutex     sync.RWMutex
 }
 
-// NewSummaryManager creates a new summary manager for type T
+// NewSummaryManager creates a new summary manager
 func NewSummaryManager[T any]() *SummaryManager[T] {
 	return &SummaryManager[T]{
-		summaries: make(map[SummaryKey]*T),
+		summaries: make(map[SummaryKey][]*T),
 	}
 }
 
-// AddOrUpdateSummary adds or updates a summary record for the given period
-func (sm *SummaryManager[T]) AddOrUpdateSummary(timestamp int64, period Period, item *T) {
+// Add items to the summary for a given period
+func (sm *SummaryManager[T]) Add(items []*T, period string) {
 	sm.mutex.Lock()
 	defer sm.mutex.Unlock()
-	
-	// Normalize timestamp to period boundary
-	normalizedTimestamp := sm.normalizeToPeriod(timestamp, period)
-	
-	key := SummaryKey{
-		Timestamp: normalizedTimestamp,
-		Period:    period,
+
+	logging.LogBackend(fmt.Sprintf("🟡 SummaryManager Add: period='%s', adding %d items", period, len(items)))
+
+	for _, item := range items {
+		timestamp := extractTimestampFromItem(item)
+		normalizedTime := normalizeToPeriod(timestamp, period)
+		key := SummaryKey{Timestamp: normalizedTime, Period: period, AssetAddr: ""} // Empty asset for regular Add
+
+		logging.LogBackend(fmt.Sprintf("🟡 SummaryManager Add: timestamp=%d, normalizedTime=%d, period='%s', key=%+v",
+			timestamp, normalizedTime, period, key))
+
+		sm.summaries[key] = append(sm.summaries[key], item)
+		logging.LogBackend(fmt.Sprintf("🟡 SummaryManager Add: added item to key, total items now: %d", len(sm.summaries[key])))
 	}
-	
-	sm.summaries[key] = item
 }
 
-// GetSummaries returns all summary records for the given period
-func (sm *SummaryManager[T]) GetSummaries(period Period) []*T {
+// AddBalance adds a balance item, replacing any existing balance for the same timestamp/period/asset
+// This ensures we keep only the most recent balance per period per asset
+func (sm *SummaryManager[T]) AddBalance(item *T, period string) {
+	sm.mutex.Lock()
+	defer sm.mutex.Unlock()
+
+	timestamp := extractTimestampFromItem(item)
+	assetAddr := extractAssetAddressFromItem(item)
+	normalizedTime := normalizeToPeriod(timestamp, period)
+	key := SummaryKey{Timestamp: normalizedTime, Period: period, AssetAddr: assetAddr}
+
+	logging.LogBackend(fmt.Sprintf("� SummaryManager AddBalance: timestamp=%d, normalizedTime=%d, period='%s', assetAddr='%s', key=%+v",
+		timestamp, normalizedTime, period, assetAddr, key))
+
+	// For balances, we replace any existing balance for this timestamp/period/asset combination
+	// instead of accumulating them (since we want the latest balance per period per asset)
+	sm.summaries[key] = []*T{item}
+	logging.LogBackend(fmt.Sprintf("� SummaryManager AddBalance: replaced balance for key, items now: %d", len(sm.summaries[key])))
+}
+
+// GetSummaries returns all summary data for a given period
+func (sm *SummaryManager[T]) GetSummaries(period string) []*T {
 	sm.mutex.RLock()
 	defer sm.mutex.RUnlock()
-	
+
+	logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: period='%s', searching summaries map", period))
+	logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: total summary keys in map: %d", len(sm.summaries)))
+
 	var results []*T
-	for key, item := range sm.summaries {
+	matchingKeys := 0
+	for key, items := range sm.summaries {
+		logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: checking key - timestamp=%d, period='%s', assetAddr='%s', items=%d",
+			key.Timestamp, key.Period, key.AssetAddr, len(items)))
 		if key.Period == period {
-			results = append(results, item)
+			matchingKeys++
+			results = append(results, items...)
+			logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: MATCH! Added %d items for period '%s', assetAddr='%s'",
+				len(items), period, key.AssetAddr))
+
+			// Log details about each item being returned
+			// for i, item := range items {
+			// itemType := reflect.TypeOf(item).String()
+			// logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: item %d type=%s, item=%+v", i, itemType, item))
+			// }
 		}
 	}
-	
-	return results
-}
 
-// GetSummary returns a specific summary record for timestamp and period
-func (sm *SummaryManager[T]) GetSummary(timestamp int64, period Period) *T {
-	sm.mutex.RLock()
-	defer sm.mutex.RUnlock()
-	
-	normalizedTimestamp := sm.normalizeToPeriod(timestamp, period)
-	key := SummaryKey{
-		Timestamp: normalizedTimestamp,
-		Period:    period,
-	}
-	
-	return sm.summaries[key]
+	logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: period='%s', found %d matching keys, returning %d total items",
+		period, matchingKeys, len(results)))
+	return results
 }
 
 // Reset clears all summary data
 func (sm *SummaryManager[T]) Reset() {
 	sm.mutex.Lock()
 	defer sm.mutex.Unlock()
-	
-	sm.summaries = make(map[SummaryKey]*T)
+	sm.summaries = make(map[SummaryKey][]*T)
 }
 
-// normalizeToPeriod converts a timestamp to the period boundary
-func (sm *SummaryManager[T]) normalizeToPeriod(timestamp int64, period Period) int64 {
+// normalizeToPeriod normalizes a timestamp to the start of the given period
+func normalizeToPeriod(timestamp int64, period string) int64 {
 	t := time.Unix(timestamp, 0).UTC()
-	
+
 	switch period {
-	case PeriodBlockly:
-		// No aggregation - return original timestamp
-		return timestamp
-	case PeriodHourly:
-		// Round down to hour boundary
-		return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), 0, 0, 0, t.Location()).Unix()
-	case PeriodDaily:
-		// Round down to day boundary
-		return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-	case PeriodWeekly:
-		// Round down to week boundary (Monday)
-		weekday := int(t.Weekday())
-		if weekday == 0 { // Sunday = 0, but we want Monday = 0
-			weekday = 7
-		}
-		daysBack := weekday - 1
-		weekStart := t.AddDate(0, 0, -daysBack)
-		return time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, t.Location()).Unix()
-	case PeriodMonthly:
-		// Round down to month boundary
-		return time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, t.Location()).Unix()
-	case PeriodQuarterly:
-		// Round down to quarter boundary
-		quarter := ((int(t.Month()) - 1) / 3) * 3 + 1
-		return time.Date(t.Year(), time.Month(quarter), 1, 0, 0, 0, 0, t.Location()).Unix()
-	case PeriodAnnual:
-		// Round down to year boundary
-		return time.Date(t.Year(), 1, 1, 0, 0, 0, 0, t.Location()).Unix()
-	default:
-		return timestamp
+	case types.PeriodHourly:
+		return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), 0, 0, 0, time.UTC).Unix()
+	case types.PeriodDaily:
+		return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC).Unix()
+	case types.PeriodWeekly:
+		// Start of week (Sunday)
+		days := int(t.Weekday())
+		return time.Date(t.Year(), t.Month(), t.Day()-days, 0, 0, 0, 0, time.UTC).Unix()
+	case types.PeriodMonthly:
+		return time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC).Unix()
+	case types.PeriodQuarterly:
+		quarter := ((int(t.Month())-1)/3)*3 + 1
+		return time.Date(t.Year(), time.Month(quarter), 1, 0, 0, 0, 0, time.UTC).Unix()
+	case types.PeriodAnnual:
+		return time.Date(t.Year(), 1, 1, 0, 0, 0, 0, time.UTC).Unix()
+	default: // PeriodBlockly
+		return timestamp // No normalization for block-level data
 	}
+}
+
+// extractTimestampFromItem extracts a timestamp from an item using reflection
+func extractTimestampFromItem(item interface{}) int64 {
+	// Try to find a Timestamp field using reflection
+	value := reflect.ValueOf(item)
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+	if value.Kind() == reflect.Struct {
+		timestampField := value.FieldByName("Timestamp")
+		if timestampField.IsValid() {
+			switch timestampField.Kind() {
+			case reflect.Uint64:
+				return int64(timestampField.Uint())
+			case reflect.Int64:
+				return timestampField.Int()
+			}
+		}
+	}
+	// Fallback to current time for items without timestamps
+	return time.Now().Unix()
+}
+
+// extractAssetAddressFromItem extracts an asset address from an item using reflection
+func extractAssetAddressFromItem(item interface{}) string {
+	// Try to find an Address field using reflection (for Balance items)
+	value := reflect.ValueOf(item)
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+	if value.Kind() == reflect.Struct {
+		// For Balance items, the asset address is in the "Address" field
+		addressField := value.FieldByName("Address")
+		if addressField.IsValid() {
+			// The Address field is typically a base.Address type with a Hex() method
+			if addressField.CanInterface() {
+				addr := addressField.Interface()
+				// Try to call Hex() method if it exists
+				addrValue := reflect.ValueOf(addr)
+				hexMethod := addrValue.MethodByName("Hex")
+				if hexMethod.IsValid() {
+					results := hexMethod.Call(nil)
+					if len(results) > 0 && results[0].Kind() == reflect.String {
+						return results[0].String()
+					}
+				}
+			}
+		}
+	}
+	// Fallback to empty string for items without asset addresses
+	return ""
 }

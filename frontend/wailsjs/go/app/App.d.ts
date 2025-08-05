@@ -120,6 +120,8 @@ export function SetActiveAddress(arg1:string):Promise<void>;
 
 export function SetActiveChain(arg1:string):Promise<void>;
 
+export function SetActivePeriod(arg1:string):Promise<void>;
+
 export function SetActiveProjectPath(arg1:string):Promise<void>;
 
 export function SetAppPreferences(arg1:preferences.AppPreferences):Promise<void>;

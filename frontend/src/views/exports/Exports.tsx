@@ -23,7 +23,7 @@ import { TabView } from '@layout';
 import { useHotkeys } from '@mantine/hooks';
 import { exports } from '@models';
 import { msgs, project, types } from '@models';
-import { Debugger, useErrorHandler } from '@utils';
+import { Debugger, Log, useErrorHandler } from '@utils';
 
 import { getColumns } from './columns';
 import { exportsFacets } from './facets';
@@ -56,17 +56,36 @@ export const Exports = () => {
   // === SECTION 3: Data Fetching ===
   const fetchData = useCallback(async () => {
     clearError();
+
+    const facet = getCurrentDataFacet();
+    const payload = createPayload(facet);
+    const currentPage = pagination.currentPage * pagination.pageSize;
+    const pageSize = pagination.pageSize;
+
+    Log(
+      `🟦 Exports fetchData START: facet=${facet}, period=${payload.period}, page=${pagination.currentPage}, pageSize=${pageSize}, filter='${filter}'`,
+    );
+
     try {
+      Log(
+        `🟦 Exports fetchData: Calling GetExportsPage with first=${currentPage}, pageSize=${pageSize}`,
+      );
       const result = await GetExportsPage(
-        createPayload(getCurrentDataFacet()),
-        pagination.currentPage * pagination.pageSize,
-        pagination.pageSize,
+        payload,
+        currentPage,
+        pageSize,
         sort,
         filter,
       );
+
+      Log(
+        `🟦 Exports fetchData SUCCESS: facet=${facet}, period=${payload.period}, totalItems=${result.totalItems}, statementsCount=${result.statements?.length || 0}, balancesCount=${result.balances?.length || 0}, assetsCount=${result.assets?.length || 0}, isFetching=${result.isFetching}`,
+      );
+
       setPageData(result);
       setTotalItems(result.totalItems || 0);
     } catch (err: unknown) {
+      Log(`🔴 Exports fetchData ERROR: ${err}`);
       handleError(err, `Failed to fetch ${getCurrentDataFacet()}`);
     }
   }, [
@@ -82,16 +101,35 @@ export const Exports = () => {
   ]);
 
   const currentData = useMemo(() => {
-    if (!pageData) return [];
+    if (!pageData) {
+      Log(`🟦 Exports currentData: No pageData available`);
+      return [];
+    }
     const facet = getCurrentDataFacet();
+    Log(
+      `🟦 Exports currentData: Processing facet=${facet}, pageData.facet=${pageData.facet}`,
+    );
+
     switch (facet) {
       case types.DataFacet.STATEMENTS:
+        Log(
+          `🟦 Exports currentData: STATEMENTS - count=${pageData.statements?.length || 0}`,
+        );
         return pageData.statements || [];
       case types.DataFacet.BALANCES:
+        Log(
+          `🟦 Exports currentData: BALANCES - count=${pageData.balances?.length || 0}`,
+        );
         return pageData.balances || [];
       case types.DataFacet.ASSETS:
+        Log(
+          `🟦 Exports currentData: ASSETS - count=${pageData.assets?.length || 0}`,
+        );
         return pageData.assets || [];
       default:
+        Log(
+          `🟦 Exports currentData: Unknown facet=${facet}, returning empty array`,
+        );
         return [];
     }
   }, [pageData, getCurrentDataFacet]);
@@ -115,6 +153,15 @@ export const Exports = () => {
       message === 'active_address_changed' ||
       message === 'active_chain_changed'
     ) {
+      Log(`🟦 Exports: Received ${message}, refreshing data`);
+      fetchData();
+    }
+  });
+
+  // Listen for active period changes to refresh data
+  useEvent(msgs.EventType.MANAGER, (message: string) => {
+    if (message === 'active_period_changed') {
+      Log(`🟦 Exports: Received active_period_changed, refreshing data`);
       fetchData();
     }
   });

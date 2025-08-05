@@ -1,6 +1,6 @@
 import { useActiveProject, useIconSets } from '@hooks';
 import { ActionIcon, Group, Loader, Select, Text } from '@mantine/core';
-import { getDisplayAddress } from '@utils';
+import { PeriodOptions, getDisplayAddress } from '@utils';
 import { useLocation } from 'wouter';
 
 interface ProjectContextBarProps {
@@ -17,8 +17,10 @@ export const ProjectContextBar = ({
     projects,
     activeAddress,
     activeChain,
+    activePeriod,
     setActiveAddress,
     setActiveChain,
+    setActivePeriod,
     switchProject,
     loading,
   } = useActiveProject();
@@ -64,6 +66,12 @@ export const ProjectContextBar = ({
     navigate('/projects');
   };
 
+  const handlePeriodChange = (period: string | null) => {
+    if (period !== null) {
+      setActivePeriod(period);
+    }
+  };
+
   if (loading) {
     return (
       <Group justify="center" p="md">
@@ -99,6 +107,14 @@ export const ProjectContextBar = ({
           data={chainOptions}
           onChange={handleChainChange}
           w={100}
+        />
+        <Select
+          size="xs"
+          placeholder="Period"
+          value={activePeriod}
+          data={PeriodOptions}
+          onChange={handlePeriodChange}
+          w={110}
         />
       </Group>
     );
@@ -152,6 +168,20 @@ export const ProjectContextBar = ({
           value={activeChain}
           data={chainOptions}
           onChange={handleChainChange}
+          w={150}
+        />
+      </Group>
+
+      <Group gap="xs">
+        <Text size="sm" fw={500}>
+          Period:
+        </Text>
+        <Select
+          size="sm"
+          placeholder="Select period"
+          value={activePeriod}
+          data={PeriodOptions}
+          onChange={handlePeriodChange}
           w={150}
         />
       </Group>

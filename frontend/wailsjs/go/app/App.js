@@ -222,6 +222,10 @@ export function SetActiveChain(arg1) {
   return window['go']['app']['App']['SetActiveChain'](arg1);
 }
 
+export function SetActivePeriod(arg1) {
+  return window['go']['app']['App']['SetActivePeriod'](arg1);
+}
+
 export function SetActiveProjectPath(arg1) {
   return window['go']['app']['App']['SetActiveProjectPath'](arg1);
 }

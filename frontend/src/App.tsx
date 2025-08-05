@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import { NodeStatus, ProjectSelectionModal, getBarWidth } from '@components';
-import { ViewContextProvider, WalletConnectProvider } from '@contexts';
+import {
+  PeriodProvider,
+  ViewContextProvider,
+  WalletConnectProvider,
+} from '@contexts';
 import {
   useActiveProject,
   useAppHealth,
@@ -128,12 +132,14 @@ export const App = () => {
             navbar={navbar}
             aside={aside}
           >
-            <Header />
-            <MenuBar />
-            <ViewContextProvider>
-              <MainView />
-            </ViewContextProvider>
-            <HelpBar />
+            <PeriodProvider>
+              <Header />
+              <MenuBar />
+              <ViewContextProvider>
+                <MainView />
+              </ViewContextProvider>
+              <HelpBar />
+            </PeriodProvider>
             <div
               style={{
                 position: 'absolute',

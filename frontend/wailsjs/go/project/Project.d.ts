@@ -8,6 +8,8 @@ export function GetActiveAddress():Promise<base.Address>;
 
 export function GetActiveChain():Promise<string>;
 
+export function GetActivePeriod():Promise<string>;
+
 export function GetAddresses():Promise<Array<base.Address>>;
 
 export function GetChains():Promise<Array<string>>;
@@ -29,6 +31,8 @@ export function SaveAs(arg1:string):Promise<void>;
 export function SetActiveAddress(arg1:base.Address):Promise<void>;
 
 export function SetActiveChain(arg1:string):Promise<void>;
+
+export function SetActivePeriod(arg1:string):Promise<void>;
 
 export function SetLastFacet(arg1:string,arg2:string):Promise<void>;
 

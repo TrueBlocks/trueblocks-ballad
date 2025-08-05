@@ -452,6 +452,7 @@ export namespace project {
 	    activeAddress: base.Address;
 	    chains: string[];
 	    activeChain: string;
+	    activePeriod: string;
 	    filterStates: Record<string, FilterState>;
 	
 	    static createFrom(source: any = {}) {
@@ -469,6 +470,7 @@ export namespace project {
 	        this.activeAddress = this.convertValues(source["activeAddress"], base.Address);
 	        this.chains = source["chains"];
 	        this.activeChain = source["activeChain"];
+	        this.activePeriod = source["activePeriod"];
 	        this.filterStates = this.convertValues(source["filterStates"], FilterState, true);
 	    }
 	
@@ -754,6 +756,7 @@ export namespace types {
 	    dataFacet: DataFacet;
 	    chain?: string;
 	    address?: string;
+	    period?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Payload(source);
@@ -765,11 +768,13 @@ export namespace types {
 	        this.dataFacet = source["dataFacet"];
 	        this.chain = source["chain"];
 	        this.address = source["address"];
+	        this.period = source["period"];
 	    }
 	}
 	export class ProjectPayload {
 	    hasProject: boolean;
 	    activeChain: string;
+	    activePeriod: string;
 	    activeAddress: string;
 	    lastView: string;
 	    lastFacetMap: Record<string, string>;
@@ -782,6 +787,7 @@ export namespace types {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.hasProject = source["hasProject"];
 	        this.activeChain = source["activeChain"];
+	        this.activePeriod = source["activePeriod"];
 	        this.activeAddress = source["activeAddress"];
 	        this.lastView = source["lastView"];
 	        this.lastFacetMap = source["lastFacetMap"];

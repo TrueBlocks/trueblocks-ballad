@@ -429,8 +429,9 @@ func (bo *BalanceObserver) OnNewItem(statement *Statement, index int) {
 	// Try to enrich with name data
 	bo.enrichBalanceWithName(balance)
 
-	// Add this balance record to the store
-	bo.balanceStore.AddItem(balance, index)
+	// Add this balance record to the store using balance-specific summarization
+	// AddBalance will keep only the most recent balance per period
+	bo.balanceStore.AddBalance(balance, index)
 }
 
 // OnStateChanged is called when the statements store state changes

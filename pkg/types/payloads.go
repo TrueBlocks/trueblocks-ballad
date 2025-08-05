@@ -1,16 +1,14 @@
 package types
 
-// Period represents different time aggregation levels
-type Period int
-
+// Period string constants for different time aggregation levels
 const (
-	PeriodBlockly Period = iota // Default - no aggregation, raw data
-	PeriodHourly
-	PeriodDaily
-	PeriodWeekly
-	PeriodMonthly
-	PeriodQuarterly
-	PeriodAnnual
+	PeriodBlockly   = "blockly" // Default - no aggregation, raw data
+	PeriodHourly    = "hourly"
+	PeriodDaily     = "daily"
+	PeriodWeekly    = "weekly"
+	PeriodMonthly   = "monthly"
+	PeriodQuarterly = "quarterly"
+	PeriodAnnual    = "annual"
 )
 
 type Payload struct {
@@ -18,7 +16,7 @@ type Payload struct {
 	DataFacet  DataFacet `json:"dataFacet"`
 	Chain      string    `json:"chain,omitempty"`
 	Address    string    `json:"address,omitempty"`
-	Period     Period    `json:"period,omitempty"`
+	Period     string    `json:"period,omitempty"`
 }
 
 type DataLoadedPayload struct {
@@ -35,6 +33,7 @@ type DataLoadedPayload struct {
 type ProjectPayload struct {
 	HasProject    bool                 `json:"hasProject"`
 	ActiveChain   string               `json:"activeChain"`
+	ActivePeriod  string               `json:"activePeriod"`
 	ActiveAddress string               `json:"activeAddress"`
 	LastView      string               `json:"lastView"`
 	LastFacetMap  map[string]DataFacet `json:"lastFacetMap"`

@@ -64,3 +64,16 @@ func (a *App) SetActiveChain(chain string) error {
 	}
 	return fmt.Errorf("no active project")
 }
+
+// ------------------------------------------------------------------------------------
+// SetActivePeriod sets the active period in the active project
+func (a *App) SetActivePeriod(period string) error {
+	if active := a.GetActiveProject(); active != nil {
+		err := active.SetActivePeriod(period)
+		if err == nil {
+			msgs.EmitManager("active_period_changed")
+		}
+		return err
+	}
+	return fmt.Errorf("no active project")
+}

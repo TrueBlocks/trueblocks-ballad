@@ -28,6 +28,7 @@ type Project struct {
 	ActiveAddress base.Address                 `json:"activeAddress"`
 	Chains        []string                     `json:"chains"`
 	ActiveChain   string                       `json:"activeChain"`
+	ActivePeriod  string                       `json:"activePeriod"`
 	FilterStates  map[ViewStateKey]FilterState `json:"filterStates"`
 	Path          string                       `json:"-"`
 }
@@ -48,6 +49,7 @@ func NewProject(name string, activeAddress base.Address, chains []string) *Proje
 		ActiveAddress: activeAddress,
 		Addresses:     addresses,
 		ActiveChain:   chains[0],
+		ActivePeriod:  "blockly", // Default to raw data
 		Chains:        chains,
 		FilterStates:  make(map[ViewStateKey]FilterState),
 	}
@@ -227,6 +229,25 @@ func (p *Project) GetActiveChain() string {
 func (p *Project) SetActiveChain(chain string) error {
 	if p.ActiveChain != chain {
 		p.ActiveChain = chain
+		return p.Save()
+	}
+	return nil
+}
+
+// ------------------------------------------------------------------------------------
+// GetActivePeriod returns the currently selected period
+func (p *Project) GetActivePeriod() string {
+	if p.ActivePeriod == "" {
+		return "blockly" // Default fallback for older projects
+	}
+	return p.ActivePeriod
+}
+
+// ------------------------------------------------------------------------------------
+// SetActivePeriod sets the currently selected period
+func (p *Project) SetActivePeriod(period string) error {
+	if p.ActivePeriod != period {
+		p.ActivePeriod = period
 		return p.Save()
 	}
 	return nil

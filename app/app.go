@@ -10,18 +10,19 @@ import (
 	"sync"
 	"time"
 
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/fileserver"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/msgs"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/preferences"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/project"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/types/exports"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/config"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/file"
 	coreTypes "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/types"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/utils"
 	dalle "github.com/TrueBlocks/trueblocks-dalle/v2"
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/fileserver"
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/msgs"
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/preferences"
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/project"
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/types/exports"
 	sdk "github.com/TrueBlocks/trueblocks-sdk/v5"
 	"github.com/joho/godotenv"
 	"github.com/wailsapp/wails/v2/pkg/menu"
@@ -251,16 +252,22 @@ func getCollectionPage[T any](
 	var zero T
 
 	dataFacet := payload.DataFacet
+	logging.LogBackend(fmt.Sprintf("🟨 getCollectionPage: facet=%s, period=%s, first=%d, pageSize=%d, filter='%s'",
+		dataFacet, payload.Period, first, pageSize, filter))
+
 	page, err := collection.GetPage(payload, first, pageSize, sort, filter)
 	if err != nil {
+		logging.LogBackend(fmt.Sprintf("🔴 getCollectionPage ERROR: %v", err))
 		return zero, err
 	}
 
 	typedPage, ok := page.(T)
 	if !ok {
+		logging.LogBackend(fmt.Sprintf("🔴 getCollectionPage TYPE ERROR: GetPage returned unexpected type %T, expected %T", page, zero))
 		return zero, types.NewValidationError("app", dataFacet, "getCollectionPage",
 			fmt.Errorf("GetPage returned unexpected type %T, expected %T", page, zero))
 	}
 
+	logging.LogBackend(fmt.Sprintf("🟨 getCollectionPage SUCCESS: facet=%s, returning typed page", dataFacet))
 	return typedPage, nil
 }

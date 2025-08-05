@@ -2,6 +2,7 @@ export * from './Debugger';
 export * from './addresses';
 export * from './ether';
 export * from './eventUtils';
+export * from './periods';
 export * from './preferences';
 export * from './registerHotkeys';
 export * from './log';

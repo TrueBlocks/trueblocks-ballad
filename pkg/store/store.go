@@ -3,11 +3,13 @@ package store
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"sync"
 	"sync/atomic"
+	"time"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/output"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/output"
 )
 
 type StoreState int
@@ -246,6 +248,11 @@ func (s *Store[T]) Fetch() error {
 			s.data = append(s.data, itemPtr)
 			s.expectedTotalItems.Store(int64(len(s.data)))
 			index := len(s.data) - 1
+
+			// Note: Summary aggregation is now handled by the GetSummaryPage method in the backend
+			// which calls AddItem/AddBalance during summary generation per period
+			// Items during fetch are stored but not immediately summarized
+
 			currentObservers := make([]FacetObserver[T], len(s.observers))
 			copy(currentObservers, s.observers)
 			s.mutex.Unlock()
@@ -306,6 +313,10 @@ func (s *Store[T]) AddItem(item *T, index int) {
 		}
 	}
 
+	// Note: Summary aggregation is now handled by the GetSummaryPage method in the backend
+	// which calls summary manager methods during summary generation per period
+	// Items added individually are stored but not immediately summarized
+
 	observers := make([]FacetObserver[T], len(s.observers))
 	copy(observers, s.observers)
 	s.mutex.Unlock()
@@ -363,6 +374,74 @@ func (s *Store[T]) GetSummaryManager() *SummaryManager[T] {
 }
 
 // GetSummaries returns summary data for the given period
-func (s *Store[T]) GetSummaries(period Period) []*T {
-	return s.summaryManager.GetSummaries(period)
+func (s *Store[T]) GetSummaries(period string) []*T {
+	logging.LogBackend(fmt.Sprintf("🟨 Store GetSummaries: period='%s', requesting summaries", period))
+	result := s.summaryManager.GetSummaries(period)
+	logging.LogBackend(fmt.Sprintf("🟨 Store GetSummaries: period='%s', returned %d summaries", period, len(result)))
+	return result
+}
+
+// AddBalance adds a balance item using the balance-specific summarization logic
+// This method keeps only the most recent balance per period instead of accumulating all balances
+func (s *Store[T]) AddBalance(item *T, index int) {
+	s.mutex.Lock()
+	s.data = append(s.data, item)
+	newIndex := len(s.data) - 1
+	itemPtr := s.data[newIndex]
+
+	if s.mappingFunc != nil {
+		if key, include := s.mappingFunc(itemPtr); include {
+			if s.dataMap == nil {
+				tempMap := make(map[interface{}]*T)
+				s.dataMap = &tempMap
+			}
+			(*s.dataMap)[key] = itemPtr
+		}
+	}
+
+	// Note: Balance summarization is handled by the GetSummaryPage method in the backend
+	// which calls AddBalance during summary generation per period with proper period strings
+	// Balances added individually are stored but not immediately summarized
+
+	observers := make([]FacetObserver[T], len(s.observers))
+	copy(observers, s.observers)
+	s.mutex.Unlock()
+
+	for _, observer := range observers {
+		observer.OnNewItem(itemPtr, newIndex)
+	}
+}
+
+// extractTimestamp attempts to extract a timestamp from an item using type assertions
+func extractTimestamp(item interface{}) int64 {
+	logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Extracting timestamp from item type %T", item))
+	// Try to find a Timestamp field using reflection
+	value := reflect.ValueOf(item)
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+	if value.Kind() == reflect.Struct {
+		timestampField := value.FieldByName("Timestamp")
+		if timestampField.IsValid() {
+			logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Found Timestamp field, kind=%s", timestampField.Kind()))
+			switch timestampField.Kind() {
+			case reflect.Uint64:
+				timestamp := int64(timestampField.Uint())
+				logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Extracted uint64 timestamp=%d", timestamp))
+				return timestamp
+			case reflect.Int64:
+				timestamp := timestampField.Int()
+				logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Extracted int64 timestamp=%d", timestamp))
+				return timestamp
+			}
+		} else {
+			logging.LogBackend("🟨 Store extractTimestamp: No Timestamp field found in struct")
+		}
+	} else {
+		logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Item is not a struct, kind=%s", value.Kind()))
+	}
+	// Fallback to current time for items without timestamps
+	fallbackTime := time.Now().Unix()
+	logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Using fallback timestamp=%d", fallbackTime))
+	return fallbackTime
 }
