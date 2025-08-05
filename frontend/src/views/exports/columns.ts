@@ -86,20 +86,13 @@ const getBalancesColumns = (): FormField[] => [
   // EXISTING_CODE
   // EXISTING_CODE
   {
-    key: 'blockNumber',
-    name: 'blockNumber',
-    header: 'Block Number',
-    label: 'Block Number',
-    type: 'number',
+    key: 'date',
+    name: 'date',
+    header: 'Date',
+    label: 'Date',
+    type: 'datetime',
     width: '120px',
-  },
-  {
-    key: 'transactionIndex',
-    name: 'transactionIndex',
-    header: 'Transaction Index',
-    label: 'Transaction Index',
-    type: 'number',
-    width: '120px',
+    render: renderDate,
   },
   {
     key: 'holder',

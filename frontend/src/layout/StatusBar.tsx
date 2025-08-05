@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { useEvent } from '@hooks';
+import { ActionIcon } from '@mantine/core';
 import { msgs } from '@models';
+import { BiCopy } from 'react-icons/bi';
 
 import './StatusBar.css';
 
@@ -9,6 +11,14 @@ export const StatusBar = () => {
   const [status, setStatus] = useState('');
   const [visible, setVisible] = useState(false);
   const [cn, setCn] = useState('okay');
+
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(status);
+    } catch (err) {
+      console.error('Failed to copy text to clipboard:', err);
+    }
+  };
 
   useEvent(msgs.EventType.STATUS, (message: string) => {
     if (cn === 'error' && visible) return;
@@ -36,6 +46,17 @@ export const StatusBar = () => {
 
   return (
     <div className={cn}>
+      {cn === 'error' && (
+        <ActionIcon
+          size="xs"
+          variant="subtle"
+          onClick={handleCopyToClipboard}
+          style={{ marginRight: '8px' }}
+          aria-label="Copy error message"
+        >
+          <BiCopy size={12} />
+        </ActionIcon>
+      )}
       <span>{status}</span>
     </div>
   );

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/fileserver"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

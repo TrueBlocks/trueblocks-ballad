@@ -5,18 +5,14 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/markdown"
+
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 	coreTypes "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/types"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/utils"
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/markdown"
 	sdk "github.com/TrueBlocks/trueblocks-sdk/v5"
 )
-
-// LogBackend logs a message to the backend logger
-func (a *App) LogBackend(msg string) {
-	logging.LogBackend(msg)
-}
 
 // LogFrontend logs a message to the frontend logger
 func (a *App) LogFrontend(msg string) {

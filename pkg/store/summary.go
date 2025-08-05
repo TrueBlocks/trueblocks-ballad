@@ -1,12 +1,10 @@
 package store
 
 import (
-	"fmt"
 	"reflect"
 	"sync"
 	"time"
 
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
 )
 
@@ -35,18 +33,11 @@ func (sm *SummaryManager[T]) Add(items []*T, period string) {
 	sm.mutex.Lock()
 	defer sm.mutex.Unlock()
 
-	logging.LogBackend(fmt.Sprintf("🟡 SummaryManager Add: period='%s', adding %d items", period, len(items)))
-
 	for _, item := range items {
 		timestamp := extractTimestampFromItem(item)
 		normalizedTime := normalizeToPeriod(timestamp, period)
 		key := SummaryKey{Timestamp: normalizedTime, Period: period, AssetAddr: ""} // Empty asset for regular Add
-
-		logging.LogBackend(fmt.Sprintf("🟡 SummaryManager Add: timestamp=%d, normalizedTime=%d, period='%s', key=%+v",
-			timestamp, normalizedTime, period, key))
-
 		sm.summaries[key] = append(sm.summaries[key], item)
-		logging.LogBackend(fmt.Sprintf("🟡 SummaryManager Add: added item to key, total items now: %d", len(sm.summaries[key])))
 	}
 }
 
@@ -60,14 +51,9 @@ func (sm *SummaryManager[T]) AddBalance(item *T, period string) {
 	assetAddr := extractAssetAddressFromItem(item)
 	normalizedTime := normalizeToPeriod(timestamp, period)
 	key := SummaryKey{Timestamp: normalizedTime, Period: period, AssetAddr: assetAddr}
-
-	logging.LogBackend(fmt.Sprintf("� SummaryManager AddBalance: timestamp=%d, normalizedTime=%d, period='%s', assetAddr='%s', key=%+v",
-		timestamp, normalizedTime, period, assetAddr, key))
-
 	// For balances, we replace any existing balance for this timestamp/period/asset combination
 	// instead of accumulating them (since we want the latest balance per period per asset)
 	sm.summaries[key] = []*T{item}
-	logging.LogBackend(fmt.Sprintf("� SummaryManager AddBalance: replaced balance for key, items now: %d", len(sm.summaries[key])))
 }
 
 // GetSummaries returns all summary data for a given period
@@ -75,30 +61,14 @@ func (sm *SummaryManager[T]) GetSummaries(period string) []*T {
 	sm.mutex.RLock()
 	defer sm.mutex.RUnlock()
 
-	logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: period='%s', searching summaries map", period))
-	logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: total summary keys in map: %d", len(sm.summaries)))
-
 	var results []*T
 	matchingKeys := 0
 	for key, items := range sm.summaries {
-		logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: checking key - timestamp=%d, period='%s', assetAddr='%s', items=%d",
-			key.Timestamp, key.Period, key.AssetAddr, len(items)))
 		if key.Period == period {
 			matchingKeys++
 			results = append(results, items...)
-			logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: MATCH! Added %d items for period '%s', assetAddr='%s'",
-				len(items), period, key.AssetAddr))
-
-			// Log details about each item being returned
-			// for i, item := range items {
-			// itemType := reflect.TypeOf(item).String()
-			// logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: item %d type=%s, item=%+v", i, itemType, item))
-			// }
 		}
 	}
-
-	logging.LogBackend(fmt.Sprintf("🟡 SummaryManager GetSummaries: period='%s', found %d matching keys, returning %d total items",
-		period, matchingKeys, len(results)))
 	return results
 }
 

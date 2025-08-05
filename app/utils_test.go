@@ -5,26 +5,13 @@ import (
 
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/preferences"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/project"
+
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 	coreTypes "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/types"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestLogBackend(t *testing.T) {
-	app := &App{
-		Projects: project.NewManager(),
-		Preferences: &preferences.Preferences{
-			User: preferences.UserPreferences{},
-		},
-	}
-
-	// Test that LogBackend doesn't panic
-	assert.NotPanics(t, func() {
-		app.LogBackend("test message")
-	})
-}
 
 func TestLogFrontend(t *testing.T) {
 	app := &App{

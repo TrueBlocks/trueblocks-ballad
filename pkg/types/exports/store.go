@@ -17,6 +17,7 @@ import (
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/store"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
+
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/output"
 	sdk "github.com/TrueBlocks/trueblocks-sdk/v5"
 )
@@ -146,7 +147,7 @@ func (c *ExportsCollection) getNamesStore(payload *types.Payload, facet types.Da
 		queryFunc := func(ctx *output.RenderCtx) error {
 			// EXISTING_CODE
 			namesOpts := sdk.NamesOptions{
-				Globals:   sdk.Globals{Cache: true, Verbose: true, Chain: chain},
+				Globals:   sdk.Globals{Verbose: true, Chain: chain},
 				RenderCtx: ctx,
 				Terms:     []string{address},
 			}

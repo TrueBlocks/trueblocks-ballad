@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
+
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/output"
 )
 
@@ -375,10 +376,7 @@ func (s *Store[T]) GetSummaryManager() *SummaryManager[T] {
 
 // GetSummaries returns summary data for the given period
 func (s *Store[T]) GetSummaries(period string) []*T {
-	logging.LogBackend(fmt.Sprintf("🟨 Store GetSummaries: period='%s', requesting summaries", period))
-	result := s.summaryManager.GetSummaries(period)
-	logging.LogBackend(fmt.Sprintf("🟨 Store GetSummaries: period='%s', returned %d summaries", period, len(result)))
-	return result
+	return s.summaryManager.GetSummaries(period)
 }
 
 // AddBalance adds a balance item using the balance-specific summarization logic
@@ -414,7 +412,6 @@ func (s *Store[T]) AddBalance(item *T, index int) {
 
 // extractTimestamp attempts to extract a timestamp from an item using type assertions
 func extractTimestamp(item interface{}) int64 {
-	logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Extracting timestamp from item type %T", item))
 	// Try to find a Timestamp field using reflection
 	value := reflect.ValueOf(item)
 	if value.Kind() == reflect.Ptr {
@@ -423,25 +420,14 @@ func extractTimestamp(item interface{}) int64 {
 	if value.Kind() == reflect.Struct {
 		timestampField := value.FieldByName("Timestamp")
 		if timestampField.IsValid() {
-			logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Found Timestamp field, kind=%s", timestampField.Kind()))
 			switch timestampField.Kind() {
 			case reflect.Uint64:
-				timestamp := int64(timestampField.Uint())
-				logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Extracted uint64 timestamp=%d", timestamp))
-				return timestamp
+				return int64(timestampField.Uint())
 			case reflect.Int64:
-				timestamp := timestampField.Int()
-				logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Extracted int64 timestamp=%d", timestamp))
-				return timestamp
+				return timestampField.Int()
 			}
-		} else {
-			logging.LogBackend("🟨 Store extractTimestamp: No Timestamp field found in struct")
 		}
-	} else {
-		logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Item is not a struct, kind=%s", value.Kind()))
 	}
 	// Fallback to current time for items without timestamps
-	fallbackTime := time.Now().Unix()
-	logging.LogBackend(fmt.Sprintf("🟨 Store extractTimestamp: Using fallback timestamp=%d", fallbackTime))
-	return fallbackTime
+	return time.Now().Unix()
 }

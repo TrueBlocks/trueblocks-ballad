@@ -4,10 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/output"
-	coreTypes "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/types"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/store"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
+
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/output"
+	coreTypes "github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/types"
 )
 
 // -------------------- Helper/Mock Functions and Types --------------------

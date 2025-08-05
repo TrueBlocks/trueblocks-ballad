@@ -92,8 +92,6 @@ export function IsInitialized():Promise<boolean>;
 
 export function IsReady():Promise<boolean>;
 
-export function LogBackend(arg1:string):Promise<void>;
-
 export function LogFrontend(arg1:string):Promise<void>;
 
 export function NewProject(arg1:string,arg2:string):Promise<void>;

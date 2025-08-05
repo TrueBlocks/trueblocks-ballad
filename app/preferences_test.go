@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/preferences"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

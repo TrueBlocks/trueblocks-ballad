@@ -4,6 +4,7 @@ import (
 	"runtime"
 
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/preferences"
+
 	"github.com/wailsapp/wails/v2/pkg/menu"
 	"github.com/wailsapp/wails/v2/pkg/menu/keys"
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"

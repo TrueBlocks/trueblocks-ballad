@@ -192,7 +192,8 @@ func (c *ExportsCollection) NeedsUpdate(dataFacet types.DataFacet) bool {
 	case ExportsStatements:
 		return c.statementsFacet.NeedsUpdate()
 	case ExportsBalances:
-		return c.balancesFacet.NeedsUpdate()
+		// Balances depend on statements, so we need update if either needs update
+		return c.balancesFacet.NeedsUpdate() || c.statementsFacet.NeedsUpdate()
 	case ExportsAssets:
 		return c.assetsFacet.NeedsUpdate()
 	default:

@@ -166,10 +166,6 @@ export function IsReady() {
   return window['go']['app']['App']['IsReady']();
 }
 
-export function LogBackend(arg1) {
-  return window['go']['app']['App']['LogBackend'](arg1);
-}
-
 export function LogFrontend(arg1) {
   return window['go']['app']['App']['LogFrontend'](arg1);
 }

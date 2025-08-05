@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
+
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 	sdk "github.com/TrueBlocks/trueblocks-sdk/v5"
 	// EXISTING_CODE
@@ -61,10 +61,6 @@ func (c *ExportsCollection) GetPage(
 ) (types.Page, error) {
 	dataFacet := payload.DataFacet
 	period := payload.Period
-
-	logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage START: facet=%s, period='%s', first=%d, pageSize=%d, filter='%s'",
-		dataFacet, period, first, pageSize, filter))
-
 	page := &ExportsPage{
 		Facet: dataFacet,
 	}
@@ -73,103 +69,70 @@ func (c *ExportsCollection) GetPage(
 	// Check if this is a summary request (non-blockly period)
 	// Assets are not time-dependent, so they ignore period and always use regular pagination
 	if period != types.PeriodBlockly && dataFacet != ExportsAssets {
-		logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Non-blockly period detected ('%s'), calling getSummaryPage", period))
 		return c.getSummaryPage(dataFacet, period, first, pageSize, sortSpec, filter)
 	} else {
-		if dataFacet == ExportsAssets {
-			logging.LogBackend("🟩 Collection GetPage: Assets facet ignores period, using regular pagination")
-		} else {
-			logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Blockly period, processing facet=%s", dataFacet))
-		}
+		c.LoadData(dataFacet)
 	}
 
 	switch dataFacet {
 	case ExportsStatements:
-		logging.LogBackend("🟩 Collection GetPage: Processing STATEMENTS facet")
 		facet := c.statementsFacet
-		logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Statements facet status - IsFetching=%t, ExpectedCount=%d",
-			facet.IsFetching(), facet.ExpectedCount()))
-
 		var filterFunc func(*Statement) bool
 		if filter != "" {
 			filterFunc = func(item *Statement) bool {
 				return c.matchesStatementFilter(item, filter)
 			}
-			logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Applied statements filter: '%s'", filter))
 		}
 		sortFunc := func(items []Statement, sort sdk.SortSpec) error {
 			return sdk.SortStatements(items, sort)
 		}
 		if result, err := facet.GetPage(first, pageSize, filterFunc, sortSpec, sortFunc); err != nil {
-			logging.LogBackend(fmt.Sprintf("🔴 Collection GetPage STATEMENTS ERROR: %v", err))
 			return nil, types.NewStoreError("exports", dataFacet, "GetPage", err)
 		} else {
-			logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Statements result - Items=%d, TotalItems=%d, State=%s",
-				len(result.Items), result.TotalItems, result.State))
 			page.Statements, page.TotalItems, page.State = result.Items, result.TotalItems, result.State
 		}
 		page.IsFetching = facet.IsFetching()
 		page.ExpectedTotal = facet.ExpectedCount()
 	case ExportsBalances:
-		logging.LogBackend("🟩 Collection GetPage: Processing BALANCES facet")
 		facet := c.balancesFacet
-		logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Balances facet status - IsFetching=%t, ExpectedCount=%d",
-			facet.IsFetching(), facet.ExpectedCount()))
-
 		var filterFunc func(*Balance) bool
 		if filter != "" {
 			filterFunc = func(item *Balance) bool {
 				return c.matchesBalanceFilter(item, filter)
 			}
-			logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Applied balances filter: '%s'", filter))
 		}
 		sortFunc := func(items []Balance, sort sdk.SortSpec) error {
 			return sdk.SortBalances(items, sort)
 		}
 		if result, err := facet.GetPage(first, pageSize, filterFunc, sortSpec, sortFunc); err != nil {
-			logging.LogBackend(fmt.Sprintf("🔴 Collection GetPage BALANCES ERROR: %v", err))
 			return nil, types.NewStoreError("exports", dataFacet, "GetPage", err)
 		} else {
-			logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Balances result - Items=%d, TotalItems=%d, State=%s",
-				len(result.Items), result.TotalItems, result.State))
 			page.Balances, page.TotalItems, page.State = result.Items, result.TotalItems, result.State
 		}
 		page.IsFetching = facet.IsFetching()
 		page.ExpectedTotal = facet.ExpectedCount()
 	case ExportsAssets:
-		logging.LogBackend("🟩 Collection GetPage: Processing ASSETS facet")
 		facet := c.assetsFacet
-		logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Assets facet status - IsFetching=%t, ExpectedCount=%d",
-			facet.IsFetching(), facet.ExpectedCount()))
-
 		var filterFunc func(*Asset) bool
 		if filter != "" {
 			filterFunc = func(item *Asset) bool {
 				return c.matchesAssetFilter(item, filter)
 			}
-			logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Applied assets filter: '%s'", filter))
 		}
 		sortFunc := func(items []Asset, sort sdk.SortSpec) error {
 			return sdk.SortAssets(items, sort)
 		}
 		if result, err := facet.GetPage(first, pageSize, filterFunc, sortSpec, sortFunc); err != nil {
-			logging.LogBackend(fmt.Sprintf("🔴 Collection GetPage ASSETS ERROR: %v", err))
 			return nil, types.NewStoreError("exports", dataFacet, "GetPage", err)
 		} else {
-			logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage: Assets result - Items=%d, TotalItems=%d, State=%s",
-				len(result.Items), result.TotalItems, result.State))
 			page.Assets, page.TotalItems, page.State = result.Items, result.TotalItems, result.State
 		}
 		page.IsFetching = facet.IsFetching()
 		page.ExpectedTotal = facet.ExpectedCount()
 	default:
-		logging.LogBackend(fmt.Sprintf("🔴 Collection GetPage: Unsupported dataFacet: %v", dataFacet))
 		return nil, types.NewValidationError("exports", dataFacet, "GetPage",
 			fmt.Errorf("unsupported dataFacet: %v", dataFacet))
 	}
-
-	logging.LogBackend(fmt.Sprintf("🟩 Collection GetPage END: facet=%s, totalItems=%d, isFetching=%t, state=%s",
-		dataFacet, page.TotalItems, page.IsFetching, page.State))
 	return page, nil
 }
 
@@ -198,18 +161,10 @@ func (c *ExportsCollection) getSummaryPage(
 	sortSpec sdk.SortSpec,
 	filter string,
 ) (types.Page, error) {
-	logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage START: facet=%s, period='%s', first=%d, pageSize=%d, filter='%s'",
-		dataFacet, period, first, pageSize, filter))
-
 	// CRITICAL: Ensure underlying raw data is loaded before generating summaries
 	// For summary periods, we need the blockly (raw) data to be loaded first
-	logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: Ensuring underlying data is loaded for facet=%s", dataFacet))
 	c.LoadData(dataFacet)
-
-	// Generate summaries from the loaded raw data for the requested period
-	logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: Generating summaries for period='%s'", period))
 	if err := c.generateSummariesForPeriod(dataFacet, period); err != nil {
-		logging.LogBackend(fmt.Sprintf("🔴 getSummaryPage: Failed to generate summaries: %v", err))
 		return nil, types.NewStoreError("exports", dataFacet, "getSummaryPage", err)
 	}
 
@@ -219,9 +174,7 @@ func (c *ExportsCollection) getSummaryPage(
 
 	switch dataFacet {
 	case ExportsStatements:
-		logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: Getting STATEMENTS summaries for period='%s'", period))
 		summaries := c.statementsFacet.GetStore().GetSummaries(period)
-		logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: Retrieved %d statement summaries", len(summaries)))
 
 		// Apply filtering if needed
 		var filtered []*Statement
@@ -231,11 +184,8 @@ func (c *ExportsCollection) getSummaryPage(
 					filtered = append(filtered, item)
 				}
 			}
-			logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: After filter '%s': %d -> %d items",
-				filter, len(summaries), len(filtered)))
 		} else {
 			filtered = summaries
-			logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: No filter applied, using all %d items", len(filtered)))
 		}
 
 		// Convert to value slice for sorting
@@ -243,7 +193,6 @@ func (c *ExportsCollection) getSummaryPage(
 
 		// Apply sorting
 		if err := sdk.SortStatements(valueSlice, sortSpec); err != nil {
-			logging.LogBackend(fmt.Sprintf("🔴 getSummaryPage STATEMENTS SORT ERROR: %v", err))
 			return nil, types.NewStoreError("exports", dataFacet, "getSummaryPage", err)
 		}
 
@@ -258,18 +207,12 @@ func (c *ExportsCollection) getSummaryPage(
 		} else {
 			valueSlice = valueSlice[first:end]
 		}
-
-		logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: STATEMENTS pagination - total=%d, first=%d, pageSize=%d, returning=%d",
-			total, first, pageSize, len(valueSlice)))
-
 		page.Statements = valueSlice
 		page.TotalItems = total
 		page.State = types.StateLoaded
 
 	case ExportsBalances:
-		logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: Getting BALANCES summaries for period='%s'", period))
 		summaries := c.balancesFacet.GetStore().GetSummaries(period)
-		logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: Retrieved %d balance summaries", len(summaries)))
 
 		// Apply filtering if needed
 		var filtered []*Balance
@@ -279,11 +222,8 @@ func (c *ExportsCollection) getSummaryPage(
 					filtered = append(filtered, item)
 				}
 			}
-			logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: After filter '%s': %d -> %d items",
-				filter, len(summaries), len(filtered)))
 		} else {
 			filtered = summaries
-			logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: No filter applied, using all %d items", len(filtered)))
 		}
 
 		// Convert to sdk.Balance slice for sorting
@@ -294,7 +234,6 @@ func (c *ExportsCollection) getSummaryPage(
 
 		// Apply sorting
 		if err := sdk.SortBalances(valueSlice, sortSpec); err != nil {
-			logging.LogBackend(fmt.Sprintf("🔴 getSummaryPage BALANCES SORT ERROR: %v", err))
 			return nil, types.NewStoreError("exports", dataFacet, "getSummaryPage", err)
 		}
 
@@ -310,33 +249,24 @@ func (c *ExportsCollection) getSummaryPage(
 			valueSlice = valueSlice[first:end]
 		}
 
-		logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage: BALANCES pagination - total=%d, first=%d, pageSize=%d, returning=%d",
-			total, first, pageSize, len(valueSlice)))
-
 		page.Balances = valueSlice
 		page.TotalItems = total
 		page.State = types.StateLoaded
 
 	default:
-		logging.LogBackend(fmt.Sprintf("🔴 getSummaryPage: Unsupported dataFacet: %v", dataFacet))
 		return nil, types.NewValidationError("exports", dataFacet, "getSummaryPage",
 			fmt.Errorf("unsupported dataFacet: %v", dataFacet))
 	}
 
-	logging.LogBackend(fmt.Sprintf("🟪 getSummaryPage END: facet=%s, period='%s', totalItems=%d, state=%s",
-		dataFacet, period, page.TotalItems, page.State))
 	return page, nil
 }
 
 // generateSummariesForPeriod ensures summaries are generated for the given period
 func (c *ExportsCollection) generateSummariesForPeriod(dataFacet types.DataFacet, period string) error {
-	logging.LogBackend(fmt.Sprintf("🟪 generateSummariesForPeriod: Starting for facet=%s, period='%s'", dataFacet, period))
-
 	switch dataFacet {
 	case ExportsStatements:
 		store := c.statementsFacet.GetStore()
 		data := store.GetItems()
-		logging.LogBackend(fmt.Sprintf("🟪 generateSummariesForPeriod: Processing %d statements for period='%s'", len(data), period))
 
 		// Clear existing summaries for this period
 		store.GetSummaryManager().Reset()
@@ -349,8 +279,6 @@ func (c *ExportsCollection) generateSummariesForPeriod(dataFacet types.DataFacet
 			normalizedTime := normalizeToPeriod(int64(statement.Timestamp), period)
 			periodGroups[normalizedTime] = append(periodGroups[normalizedTime], statement)
 		}
-
-		logging.LogBackend(fmt.Sprintf("🟪 generateSummariesForPeriod: Grouped into %d periods for period='%s'", len(periodGroups), period))
 
 		// Create one summary statement per period
 		for normalizedTime, statements := range periodGroups {
@@ -381,13 +309,10 @@ func (c *ExportsCollection) generateSummariesForPeriod(dataFacet types.DataFacet
 			store.GetSummaryManager().Add([]*Statement{summaryStatement}, period)
 		}
 
-		logging.LogBackend(fmt.Sprintf("🟪 generateSummariesForPeriod: Generated %d statement summaries for period='%s'", len(periodGroups), period))
-
 	case ExportsBalances:
 		statementsStore := c.statementsFacet.GetStore()
 		balancesStore := c.balancesFacet.GetStore()
 		statements := statementsStore.GetItems()
-		logging.LogBackend(fmt.Sprintf("🟪 generateSummariesForPeriod: Processing %d statements to generate balance summaries for period='%s'", len(statements), period))
 
 		// Clear existing balance summaries for this period
 		balancesStore.GetSummaryManager().Reset()
@@ -409,9 +334,6 @@ func (c *ExportsCollection) generateSummariesForPeriod(dataFacet types.DataFacet
 			// Use AddBalance for asset-aware summarization (keeps latest balance per period per asset)
 			balancesStore.GetSummaryManager().AddBalance(balance, period)
 		}
-
-		logging.LogBackend(fmt.Sprintf("🟪 generateSummariesForPeriod: Generated balance summaries for period='%s'", period))
-
 	default:
 		return fmt.Errorf("unsupported dataFacet for summary generation: %v", dataFacet)
 	}
