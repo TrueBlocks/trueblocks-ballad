@@ -21,6 +21,7 @@ import { Log, initializePreferencesDefaults } from '@utils';
 import { WalletConnectModalSign } from '@walletconnect/modal-sign-react';
 import { Router } from 'wouter';
 
+import './debug-layout.css';
 import { useGlobalEscape } from './hooks/useGlobalEscape';
 
 // Add at the top level, outside the component

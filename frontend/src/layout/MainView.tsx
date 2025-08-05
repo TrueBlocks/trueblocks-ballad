@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 import { StatusBar } from '@layout';
 import { AppShell } from '@mantine/core';
+import { getDebugClass } from '@utils';
 import { MenuItem, MenuItems } from 'src/Menu';
 import { Route, useLocation } from 'wouter';
 
@@ -25,6 +26,7 @@ export const MainView = () => {
 
   return (
     <AppShell.Main
+      className={getDebugClass(0)}
       style={{
         width: '100%',
         height: '100vh',
@@ -32,10 +34,12 @@ export const MainView = () => {
         flexDirection: 'column',
         overflow: 'hidden',
         position: 'relative',
+        contain: 'layout style',
       }}
     >
       <div
         ref={scrollContainerRef}
+        className={getDebugClass(2)}
         style={{
           width: '100%',
           flex: 1,
@@ -52,6 +56,7 @@ export const MainView = () => {
       </div>
 
       <div
+        className={getDebugClass(2)}
         style={{
           width: '100%',
         }}
