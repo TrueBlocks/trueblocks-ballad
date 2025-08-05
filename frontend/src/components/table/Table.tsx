@@ -280,43 +280,44 @@ export const Table = <T extends Record<string, unknown>>({
       <div
         className={`table-main-content ${!detailCollapsed ? 'with-detail-panel' : ''}`}
       >
-        <div className="table-section">
-          <table
-            className="data-table"
-            ref={tableRef}
-            tabIndex={0}
-            aria-label="Table with keyboard navigation"
-            onClick={focusTable}
-          >
-            <Header columns={displayColumns} viewStateKey={viewStateKey} />
-            <tbody>
-              {data.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={displayColumns.length}
-                    style={{
-                      textAlign: 'left',
-                      padding: '20px',
-                      color: loading
-                        ? 'var(--mantine-color-blue-6)'
-                        : 'var(--mantine-color-gray-6)',
-                    }}
-                  >
-                    {loading ? 'Loading...' : 'No data found.'}
-                  </td>
-                </tr>
-              ) : (
-                <Body
-                  columns={displayColumns}
-                  data={data}
-                  selectedRowIndex={selectedRowIndex}
-                  handleRowClick={handleRowClick}
-                  noDataMessage={loading ? 'Loading...' : 'No data found.'}
-                />
-              )}
-            </tbody>
-          </table>
-        </div>
+        <table
+          className="data-table"
+          ref={tableRef}
+          tabIndex={0}
+          aria-label="Table with keyboard navigation"
+          onClick={focusTable}
+        >
+          <Header columns={displayColumns} viewStateKey={viewStateKey} />
+          <tbody>
+            {data.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={displayColumns.length}
+                  style={{
+                    textAlign: 'left',
+                    padding: '20px',
+                    color: loading
+                      ? 'var(--mantine-color-blue-6)'
+                      : 'var(--mantine-color-gray-6)',
+                  }}
+                >
+                  {loading ? 'Loading...' : 'No data found.'}
+                </td>
+              </tr>
+            ) : (
+              <Body
+                columns={displayColumns}
+                data={data}
+                selectedRowIndex={selectedRowIndex}
+                handleRowClick={handleRowClick}
+                noDataMessage={loading ? 'Loading...' : 'No data found.'}
+              />
+            )}
+          </tbody>
+          <div className="table-footer">
+            <Stats namesLength={data.length} viewStateKey={viewStateKey} />
+          </div>
+        </table>
 
         {!detailCollapsed && (
           <DetailPanel
@@ -324,10 +325,6 @@ export const Table = <T extends Record<string, unknown>>({
             detailPanel={detailPanel}
           />
         )}
-      </div>
-
-      <div className="table-footer">
-        <Stats namesLength={data.length} viewStateKey={viewStateKey} />
       </div>
 
       <Modal
