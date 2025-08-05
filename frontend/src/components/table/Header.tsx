@@ -3,6 +3,7 @@ import React from 'react';
 import { FormField } from '@components';
 import { useSorting } from '@contexts';
 import { project } from '@models';
+import { getDebugClass } from '@utils';
 
 import { SortSpecManager } from '../../utils/sortSpec';
 import './Header.css';
@@ -27,7 +28,7 @@ export const Header = <T extends Record<string, unknown>>({
   };
 
   return (
-    <thead>
+    <thead className={getDebugClass(1)}>
       <tr>
         {columns.map((col) => {
           // Get sort info from SortSpecManager for this column

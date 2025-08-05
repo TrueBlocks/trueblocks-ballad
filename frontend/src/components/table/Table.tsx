@@ -6,6 +6,7 @@ import { useFiltering } from '@contexts';
 import { usePreferences } from '@hooks';
 import { Modal } from '@mantine/core';
 import { project } from '@models';
+import { getDebugClass } from '@utils';
 
 import {
   Body,
@@ -278,17 +279,17 @@ export const Table = <T extends Record<string, unknown>>({
       </div>
 
       <div
-        className={`table-main-content ${!detailCollapsed ? 'with-detail-panel' : ''}`}
+        className={`table-main-content ${!detailCollapsed ? 'with-detail-panel' : ''} ${getDebugClass(2)}`}
       >
         <table
-          className="data-table"
+          className={`data-table ${getDebugClass(4)}`}
           ref={tableRef}
           tabIndex={0}
           aria-label="Table with keyboard navigation"
           onClick={focusTable}
         >
           <Header columns={displayColumns} viewStateKey={viewStateKey} />
-          <tbody>
+          <tbody className={getDebugClass(5)}>
             {data.length === 0 ? (
               <tr>
                 <td
@@ -314,7 +315,7 @@ export const Table = <T extends Record<string, unknown>>({
               />
             )}
           </tbody>
-          <div className="table-footer">
+          <div className={`table-footer ${getDebugClass(6)}`}>
             <Stats namesLength={data.length} viewStateKey={viewStateKey} />
           </div>
         </table>
