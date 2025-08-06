@@ -155,6 +155,11 @@ func EmitProjectOpened(lastView string, payload ...interface{}) {
 	emitMessage(EventProjectOpened, lastView, payload...)
 }
 
+// EmitProjectModal signals project modal related events.
+func EmitProjectModal(msgText string, payload ...interface{}) {
+	emitMessage(EventProjectModal, msgText, payload...)
+}
+
 // On registers a callback function for a specific event type.
 // In production, it uses Wails' runtime.EventsOn.
 // In test mode, it registers the callback with the internal listener system.

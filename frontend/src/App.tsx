@@ -73,7 +73,7 @@ export const App = () => {
     };
   }, []);
 
-  // Show project modal if we don't have a valid project
+  // Show project modal only if we don't have a valid project AND it's not a user-requested modal
   useEffect(() => {
     setShowProjectModal(!hasActiveProject);
   }, [hasActiveProject]);
@@ -86,7 +86,6 @@ export const App = () => {
   });
 
   useEvent(msgs.EventType.PROJECT_OPENED, () => {
-    // Project was opened successfully, modal should close
     setShowProjectModal(false);
   });
 

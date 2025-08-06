@@ -16,7 +16,6 @@ export const ProjectsPanel = ({
   const { projects } = useActiveProject();
   const { File } = useIconSets();
 
-  // Listen for project changes
   useEvent(msgs.EventType.MANAGER, () => {
     Log('Projects updated via manager event');
   });

@@ -9,9 +9,6 @@
 package app
 
 import (
-	"fmt"
-
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types/exports"
 
@@ -36,10 +33,6 @@ func (a *App) GetExportsSummary(payload *types.Payload) types.Summary {
 }
 
 func (a *App) ReloadExports(payload *types.Payload) error {
-	logging.LogBackend("")
-	logging.LogBackend(fmt.Sprintf("🟦 API ReloadExports: chain=%s, address=%s, facet=%s",
-		payload.Chain, payload.Address, payload.DataFacet))
-
 	collection := exports.GetExportsCollection(payload)
 	collection.Reset(payload.DataFacet)
 	collection.LoadData(payload.DataFacet)

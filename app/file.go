@@ -14,22 +14,21 @@ import (
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// FileNew creates a new project file with default settings
+// FileNew opens the project selection dialog while keeping current project active
 func (a *App) FileNew(_ *menu.CallbackData) {
 	if err := a.fileNew(base.ZeroAddr); err != nil {
 		msgs.EmitError("File → New failed", err)
 		return
 	}
-	activeProject := a.GetActiveProject()
-	msgs.EmitStatus("new file created " + activeProject.GetPath())
+	// activeProject := a.GetActiveProject()
+	msgs.EmitStatus("new project dialog opened")
 }
 
-// FileOpen clears the current project and opens the project selection dialog
+// FileOpen opens the project selection dialog while keeping current project active
 func (a *App) FileOpen(_ *menu.CallbackData) {
 	if err := a.ClearActiveProject(); err != nil {
 		return
 	}
-
 	msgs.EmitManager("show_project_modal")
 	msgs.EmitStatus("project selection dialog opened")
 }

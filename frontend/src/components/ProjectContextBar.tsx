@@ -121,70 +121,72 @@ export const ProjectContextBar = ({
   }
 
   return (
-    <Group gap="md">
-      <Group gap="xs">
-        <Text size="sm" fw={500}>
-          Project:
-        </Text>
-        <Select
-          size="sm"
-          placeholder="Select project"
-          value={currentProject?.id || ''}
-          data={projectOptions}
-          onChange={handleProjectChange}
-          w={200}
-        />
-        <ActionIcon
-          size="sm"
-          variant="light"
-          onClick={handleManageProjects}
-          title="Manage Projects"
-        >
-          <Settings />
-        </ActionIcon>
-      </Group>
+    <>
+      <Group gap="md">
+        <Group gap="xs">
+          <Text size="sm" fw={500}>
+            Project:
+          </Text>
+          <Select
+            size="sm"
+            placeholder="Select project"
+            value={currentProject?.id || ''}
+            data={projectOptions}
+            onChange={handleProjectChange}
+            w={200}
+          />
+          <ActionIcon
+            size="sm"
+            variant="light"
+            onClick={handleManageProjects}
+            title="Manage Projects"
+          >
+            <Settings />
+          </ActionIcon>
+        </Group>
 
-      <Group gap="xs">
-        <Text size="sm" fw={500}>
-          Address:
-        </Text>
-        <Select
-          size="sm"
-          placeholder="Select address"
-          value={activeAddress}
-          data={addressOptions}
-          onChange={handleAddressChange}
-          w={200}
-        />
-      </Group>
+        <Group gap="xs">
+          <Text size="sm" fw={500}>
+            Address:
+          </Text>
+          <Select
+            size="sm"
+            placeholder="Select address"
+            value={activeAddress}
+            data={addressOptions}
+            onChange={handleAddressChange}
+            w={200}
+          />
+        </Group>
 
-      <Group gap="xs">
-        <Text size="sm" fw={500}>
-          Chain:
-        </Text>
-        <Select
-          size="sm"
-          placeholder="Select chain"
-          value={activeChain}
-          data={chainOptions}
-          onChange={handleChainChange}
-          w={150}
-        />
-      </Group>
+        <Group gap="xs">
+          <Text size="sm" fw={500}>
+            Chain:
+          </Text>
+          <Select
+            size="sm"
+            placeholder="Select chain"
+            value={activeChain}
+            data={chainOptions}
+            onChange={handleChainChange}
+            w={150}
+          />
+        </Group>
 
-      <Group gap="xs">
-        <Text size="sm" fw={500}>
-          Period:
-        </Text>
-        <Select
-          size="sm"
-          placeholder="Select period"
-          value={activePeriod}
-          data={PeriodOptions}
-          onChange={handlePeriodChange}
-          w={150}
-        />
+        <Group gap="xs">
+          <Text size="sm" fw={500}>
+            Period:
+          </Text>
+          <Select
+            size="sm"
+            placeholder="Select period"
+            value={activePeriod}
+            data={PeriodOptions}
+            onChange={handlePeriodChange}
+            w={150}
+          />
+        </Group>
       </Group>
-    </Group>
+    </>
   );
 };
