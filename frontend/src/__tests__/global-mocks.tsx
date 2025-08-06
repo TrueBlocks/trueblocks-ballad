@@ -25,6 +25,7 @@ const iconNames = [
   'Status',
   'DalleDress',
   'Settings',
+  'Wizard',
   'Switch',
   'File',
   'Twitter',
@@ -61,6 +62,7 @@ vi.mock('@utils', async (importOriginal) => {
   return {
     ...(original as object),
     Log: vi.fn(),
+    checkAndNavigateToWizard: () => Promise.resolve(null),
     useEmitters: () => ({ emitStatus: vi.fn(), emitError: vi.fn() }),
     isDebugMode: vi.fn(() => false),
     useErrorHandler: vi.fn(() => vi.fn()),

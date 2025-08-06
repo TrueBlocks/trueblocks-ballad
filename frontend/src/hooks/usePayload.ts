@@ -16,6 +16,7 @@ function validatePayloadAddress(address: string, context: string) {
   }
 }
 
+// TODO: BOGUS - THIS SHOULD INCLUDE ACTIVE CONTRACT
 export const usePayload = () => {
   const { activeAddress, activeChain, activePeriod } = useActiveProject();
   return useCallback(

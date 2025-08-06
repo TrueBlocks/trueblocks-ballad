@@ -3,10 +3,8 @@ package store
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
 
@@ -250,6 +248,7 @@ func (s *Store[T]) Fetch() error {
 			s.expectedTotalItems.Store(int64(len(s.data)))
 			index := len(s.data) - 1
 
+			// TODO: BOGUS
 			// Note: Summary aggregation is now handled by the GetSummaryPage method in the backend
 			// which calls AddItem/AddBalance during summary generation per period
 			// Items during fetch are stored but not immediately summarized
@@ -314,6 +313,7 @@ func (s *Store[T]) AddItem(item *T, index int) {
 		}
 	}
 
+	// TODO: BOGUS
 	// Note: Summary aggregation is now handled by the GetSummaryPage method in the backend
 	// which calls summary manager methods during summary generation per period
 	// Items added individually are stored but not immediately summarized
@@ -340,7 +340,7 @@ func (s *Store[T]) Reset() {
 		newMap := make(map[interface{}]*T)
 		s.dataMap = &newMap
 	}
-	s.summaryManager.Reset() // Reset summary data as well
+	s.summaryManager.Reset()
 	s.expectedTotalItems.Store(0)
 	s.dataGeneration.Add(1)
 	newState := StateStale
@@ -408,26 +408,4 @@ func (s *Store[T]) AddBalance(item *T, index int) {
 	for _, observer := range observers {
 		observer.OnNewItem(itemPtr, newIndex)
 	}
-}
-
-// extractTimestamp attempts to extract a timestamp from an item using type assertions
-func extractTimestamp(item interface{}) int64 {
-	// Try to find a Timestamp field using reflection
-	value := reflect.ValueOf(item)
-	if value.Kind() == reflect.Ptr {
-		value = value.Elem()
-	}
-	if value.Kind() == reflect.Struct {
-		timestampField := value.FieldByName("Timestamp")
-		if timestampField.IsValid() {
-			switch timestampField.Kind() {
-			case reflect.Uint64:
-				return int64(timestampField.Uint())
-			case reflect.Int64:
-				return timestampField.Int()
-			}
-		}
-	}
-	// Fallback to current time for items without timestamps
-	return time.Now().Unix()
 }

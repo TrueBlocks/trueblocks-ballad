@@ -4,20 +4,18 @@ import { useWalletGatedAction } from '@hooks';
 import { crud, project, sdk, types } from '@models';
 import { Log, addressToHex, useErrorHandler } from '@utils';
 
+import {
+  TransactionData,
+  buildTransaction,
+} from '../views/contracts/components/transactionBuilder';
+// TODO: BOGUS add an @contracts alias for this import
+
 import { useActionMsgs } from './useActionMsgs';
-
-// Stub types and functions for removed contracts functionality
-type TransactionData = Record<string, never>;
-
-const buildTransaction = (): TransactionData | null => {
-  // Stub implementation - contracts functionality was removed
-  return null;
-};
 
 const debug = false;
 
 // Constants for the unchainedindex.eth contract
-const _UNCHAINED_INDEX_CONTRACT = '0x0c316b7042b419d07d343f2f4f5bd54ff731183d';
+const UNCHAINED_INDEX_CONTRACT = '0x0c316b7042b419d07d343f2f4f5bd54ff731183d';
 
 export type ActionType =
   | 'publish'
@@ -202,7 +200,7 @@ export const useActions = <TPageData extends { totalItems: number }, TItem>(
 
     try {
       // Create a mock function definition for publishHash(string,string)
-      const _publishHashFunction: types.Function = {
+      const publishHashFunction: types.Function = {
         name: 'publishHash',
         type: 'function',
         inputs: [
@@ -216,7 +214,7 @@ export const useActions = <TPageData extends { totalItems: number }, TItem>(
       };
 
       // Create transaction inputs - you can customize these values as needed
-      const _transactionInputs = [
+      const transactionInputs = [
         { name: 'chain', type: 'string', value: 'mainnet' },
         {
           name: 'hash',
@@ -226,7 +224,11 @@ export const useActions = <TPageData extends { totalItems: number }, TItem>(
       ];
 
       // Build the transaction
-      const transactionData = buildTransaction();
+      const transactionData = buildTransaction(
+        UNCHAINED_INDEX_CONTRACT,
+        publishHashFunction,
+        transactionInputs,
+      );
 
       Log(
         'Transaction data created for pending publish:',
@@ -309,7 +311,7 @@ export const useActions = <TPageData extends { totalItems: number }, TItem>(
 
     try {
       // Create a mock function definition for publishHash(string,string)
-      const _publishHashFunction: types.Function = {
+      const publishHashFunction: types.Function = {
         name: 'publishHash',
         type: 'function',
         inputs: [
@@ -324,7 +326,7 @@ export const useActions = <TPageData extends { totalItems: number }, TItem>(
 
       // Create transaction inputs - you can customize these values as needed
       // TODO: THIS CANNOT BE HARD CODED
-      const _transactionInputs = [
+      const transactionInputs = [
         { name: 'chain', type: 'string', value: 'mainnet' },
         {
           name: 'hash',
@@ -334,7 +336,11 @@ export const useActions = <TPageData extends { totalItems: number }, TItem>(
       ];
 
       // Build the transaction
-      const transactionData = buildTransaction();
+      const transactionData = buildTransaction(
+        UNCHAINED_INDEX_CONTRACT,
+        publishHashFunction,
+        transactionInputs,
+      );
 
       Log('Transaction data created:', JSON.stringify(transactionData));
 

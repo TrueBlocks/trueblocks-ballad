@@ -89,8 +89,8 @@ export const UploadAddressesDialog = ({
     >
       <Stack gap="md">
         <Text size="sm" c="dimmed">
-          Upload a list of Ethereum addresses. You can either paste addresses
-          directly or upload a file containing addresses.
+          Upload a list of Ethereum addresses to add as monitors. You can either
+          paste addresses directly or upload a file containing addresses.
         </Text>
 
         <FileInput

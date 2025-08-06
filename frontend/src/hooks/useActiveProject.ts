@@ -11,6 +11,7 @@ import {
   OpenProjectFile,
   SetActiveAddress,
   SetActiveChain,
+  SetActiveContract,
   SetActivePeriod,
   SetAppPreferences,
   SetLastFacet,
@@ -39,8 +40,9 @@ export interface UseActiveProjectReturn {
   loading: boolean;
   lastProject: string;
   activeChain: string;
-  activePeriod: string;
   activeAddress: string;
+  activeContract: string;
+  activePeriod: string;
   lastView: string;
   lastFacetMap: Record<string, types.DataFacet>;
 
@@ -51,6 +53,7 @@ export interface UseActiveProjectReturn {
   getLastFacet: (view: string) => string;
   setActiveAddress: (address: string) => Promise<void>;
   setActiveChain: (chain: string) => Promise<void>;
+  setActiveContract: (contract: string) => Promise<void>;
   setActivePeriod: (period: string) => Promise<void>;
   setLastView: (view: string) => Promise<void>;
   setLastFacet: (view: string, facet: types.DataFacet) => Promise<void>;
@@ -75,8 +78,9 @@ interface ProjectState {
   loading: boolean;
   lastProject: string;
   activeChain: string;
-  activePeriod: string;
   activeAddress: string;
+  activeContract: string;
+  activePeriod: string;
   lastView: string;
   lastFacetMap: Record<string, types.DataFacet>;
   projects: ProjectInfo[];
@@ -86,8 +90,9 @@ const initialProjectState: ProjectState = {
   loading: false,
   lastProject: '',
   activeChain: '',
-  activePeriod: 'blockly',
   activeAddress: '',
+  activeContract: '',
+  activePeriod: 'blockly',
   lastView: '/',
   lastFacetMap: {},
   projects: [],
@@ -109,14 +114,16 @@ class ProjectStore {
         loading: this.state.loading,
         lastProject: this.state.lastProject,
         activeChain: this.state.activeChain,
-        activePeriod: this.state.activePeriod,
         activeAddress: this.state.activeAddress,
+        activeContract: this.state.activeContract,
+        activePeriod: this.state.activePeriod,
         lastView: this.state.lastView,
         lastFacetMap: this.state.lastFacetMap,
         projects: this.state.projects,
         getLastFacet: this.getLastFacet,
         setActiveAddress: this.setActiveAddress,
         setActiveChain: this.setActiveChain,
+        setActiveContract: this.setActiveContract,
         setActivePeriod: this.setActivePeriod,
         setLastView: this.setLastView,
         setLastFacet: this.setLastFacet,
@@ -168,8 +175,9 @@ class ProjectStore {
       this.setState({
         lastProject: prefs.lastProject || '',
         activeChain: projectData.activeChain || '',
-        activePeriod: projectData.activePeriod || 'blockly',
         activeAddress: projectData.activeAddress || '',
+        activeContract: projectData.activeContract || '',
+        activePeriod: projectData.activePeriod || 'blockly',
         lastView: projectData.lastView || '/',
         lastFacetMap: Object.fromEntries(
           Object.entries(projectData.lastFacetMap || {}).map(([key, value]) => [
@@ -243,6 +251,11 @@ class ProjectStore {
   setActiveChain = async (chain: string): Promise<void> => {
     await SetActiveChain(chain);
     this.setState({ activeChain: chain });
+  };
+
+  setActiveContract = async (contract: string): Promise<void> => {
+    await SetActiveContract(contract);
+    this.setState({ activeContract: contract });
   };
 
   setActivePeriod = async (period: string): Promise<void> => {

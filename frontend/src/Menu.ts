@@ -5,8 +5,10 @@
  * Parts of this file were auto generated. Edit only those parts of
  * the code inside of 'EXISTING_CODE' tags.
  */
+import { SetInitialized } from '@app';
 import { DalleDress, Home, Khedra, Projects, Settings } from '@views';
-import { Exports } from '@views';
+import { Contracts, Exports, Names } from '@views';
+import { Wizard } from '@wizards';
 
 export interface MenuItem {
   label: string;
@@ -39,8 +41,26 @@ export const MenuItems: MenuItem[] = [
     type: 'navigation',
   },
   {
+    label: 'Names',
+    path: '/names',
+    position: 'top',
+    component: Names,
+    hotkey: 'mod+5',
+    altHotkey: 'alt+5',
+    type: 'navigation',
+  },
+  {
+    label: 'Contracts',
+    path: '/contracts',
+    position: 'top',
+    component: Contracts,
+    hotkey: 'mod+7',
+    altHotkey: 'alt+7',
+    type: 'navigation',
+  },
+  {
     label: 'DalleDress',
-    path: '/dalledress',
+    path: '/ballad',
     position: 'top',
     component: DalleDress,
     hotkey: 'mod+9',
@@ -73,5 +93,17 @@ export const MenuItems: MenuItem[] = [
     hotkey: 'mod+shift+1',
     altHotkey: 'alt+shift+1',
     type: 'navigation',
+  },
+  {
+    path: '/wizard',
+    label: 'Wizard',
+    position: 'hidden',
+    component: Wizard,
+    hotkey: 'mod+shift+2',
+    altHotkey: 'alt+shift+2',
+    type: 'dev',
+    action: async () => {
+      await SetInitialized(false);
+    },
   },
 ];

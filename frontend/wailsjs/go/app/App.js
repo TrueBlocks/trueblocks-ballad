@@ -30,6 +30,10 @@ export function ClearActiveProject() {
   return window['go']['app']['App']['ClearActiveProject']();
 }
 
+export function ClearFilterState(arg1) {
+  return window['go']['app']['App']['ClearFilterState'](arg1);
+}
+
 export function CloseProject(arg1) {
   return window['go']['app']['App']['CloseProject'](arg1);
 }
@@ -90,6 +94,14 @@ export function GetContext() {
   return window['go']['app']['App']['GetContext']();
 }
 
+export function GetContractsPage(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['app']['App']['GetContractsPage'](arg1, arg2, arg3, arg4, arg5);
+}
+
+export function GetContractsSummary(arg1) {
+  return window['go']['app']['App']['GetContractsSummary'](arg1);
+}
+
 export function GetDebugCollapsed() {
   return window['go']['app']['App']['GetDebugCollapsed']();
 }
@@ -108,6 +120,10 @@ export function GetExportsSummary(arg1) {
 
 export function GetFilename() {
   return window['go']['app']['App']['GetFilename']();
+}
+
+export function GetFilterState(arg1) {
+  return window['go']['app']['App']['GetFilterState'](arg1);
 }
 
 export function GetImageURL(arg1) {
@@ -130,6 +146,14 @@ export function GetMarkdown(arg1, arg2, arg3) {
   return window['go']['app']['App']['GetMarkdown'](arg1, arg2, arg3);
 }
 
+export function GetNamesPage(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['app']['App']['GetNamesPage'](arg1, arg2, arg3, arg4, arg5);
+}
+
+export function GetNamesSummary(arg1) {
+  return window['go']['app']['App']['GetNamesSummary'](arg1);
+}
+
 export function GetNodeStatus(arg1) {
   return window['go']['app']['App']['GetNodeStatus'](arg1);
 }
@@ -146,6 +170,10 @@ export function GetProjectAddress() {
   return window['go']['app']['App']['GetProjectAddress']();
 }
 
+export function GetProjectViewState(arg1) {
+  return window['go']['app']['App']['GetProjectViewState'](arg1);
+}
+
 export function GetRegisteredViews() {
   return window['go']['app']['App']['GetRegisteredViews']();
 }
@@ -154,8 +182,16 @@ export function GetTheme() {
   return window['go']['app']['App']['GetTheme']();
 }
 
+export function GetUserInfoStatus() {
+  return window['go']['app']['App']['GetUserInfoStatus']();
+}
+
 export function GetUserPreferences() {
   return window['go']['app']['App']['GetUserPreferences']();
+}
+
+export function GetWizardReturn() {
+  return window['go']['app']['App']['GetWizardReturn']();
 }
 
 export function HasActiveProject() {
@@ -174,6 +210,14 @@ export function LogFrontend(arg1) {
   return window['go']['app']['App']['LogFrontend'](arg1);
 }
 
+export function NameFromAddress(arg1) {
+  return window['go']['app']['App']['NameFromAddress'](arg1);
+}
+
+export function NamesCrud(arg1, arg2, arg3) {
+  return window['go']['app']['App']['NamesCrud'](arg1, arg2, arg3);
+}
+
 export function NewProject(arg1, arg2) {
   return window['go']['app']['App']['NewProject'](arg1, arg2);
 }
@@ -190,8 +234,16 @@ export function Reload(arg1) {
   return window['go']['app']['App']['Reload'](arg1);
 }
 
+export function ReloadContracts(arg1) {
+  return window['go']['app']['App']['ReloadContracts'](arg1);
+}
+
 export function ReloadExports(arg1) {
   return window['go']['app']['App']['ReloadExports'](arg1);
+}
+
+export function ReloadNames(arg1) {
+  return window['go']['app']['App']['ReloadNames'](arg1);
 }
 
 export function RemoveAddressFromProject(arg1) {
@@ -222,6 +274,10 @@ export function SetActiveChain(arg1) {
   return window['go']['app']['App']['SetActiveChain'](arg1);
 }
 
+export function SetActiveContract(arg1) {
+  return window['go']['app']['App']['SetActiveContract'](arg1);
+}
+
 export function SetActivePeriod(arg1) {
   return window['go']['app']['App']['SetActivePeriod'](arg1);
 }
@@ -234,8 +290,16 @@ export function SetAppPreferences(arg1) {
   return window['go']['app']['App']['SetAppPreferences'](arg1);
 }
 
+export function SetChain(arg1) {
+  return window['go']['app']['App']['SetChain'](arg1);
+}
+
 export function SetDebugCollapsed(arg1) {
   return window['go']['app']['App']['SetDebugCollapsed'](arg1);
+}
+
+export function SetFilterState(arg1, arg2) {
+  return window['go']['app']['App']['SetFilterState'](arg1, arg2);
 }
 
 export function SetHelpCollapsed(arg1) {
@@ -270,8 +334,16 @@ export function SetProjectAddress(arg1) {
   return window['go']['app']['App']['SetProjectAddress'](arg1);
 }
 
+export function SetProjectViewState(arg1, arg2) {
+  return window['go']['app']['App']['SetProjectViewState'](arg1, arg2);
+}
+
 export function SetTheme(arg1) {
   return window['go']['app']['App']['SetTheme'](arg1);
+}
+
+export function SetUserInfo(arg1, arg2) {
+  return window['go']['app']['App']['SetUserInfo'](arg1, arg2);
 }
 
 export function SetUserPreferences(arg1) {

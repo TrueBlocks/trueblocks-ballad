@@ -262,5 +262,6 @@ func getCollectionPage[T any](
 		return zero, types.NewValidationError("app", dataFacet, "getCollectionPage",
 			fmt.Errorf("GetPage returned unexpected type %T, expected %T", page, zero))
 	}
+
 	return typedPage, nil
 }

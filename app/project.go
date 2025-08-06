@@ -214,12 +214,13 @@ func (a *App) GetActiveProjectData() *types.ProjectPayload {
 	project := a.GetActiveProject()
 	if project == nil {
 		return &types.ProjectPayload{
-			HasProject:    false,
-			ActiveChain:   "",
-			ActivePeriod:  "",
-			ActiveAddress: "",
-			LastView:      "",
-			LastFacetMap:  make(map[string]types.DataFacet),
+			HasProject:     false,
+			ActiveChain:    "",
+			ActiveAddress:  "",
+			ActiveContract: "",
+			ActivePeriod:   "",
+			LastView:       "",
+			LastFacetMap:   make(map[string]types.DataFacet),
 		}
 	}
 
@@ -240,12 +241,13 @@ func (a *App) GetActiveProjectData() *types.ProjectPayload {
 	}
 
 	return &types.ProjectPayload{
-		HasProject:    true,
-		ActiveChain:   project.GetActiveChain(),
+		HasProject:     true,
+		ActiveChain:    project.GetActiveChain(),
+		ActiveAddress:  activeAddrStr,
+		ActiveContract: project.GetActiveContract(),
 		ActivePeriod:  project.GetActivePeriod(),
-		ActiveAddress: activeAddrStr,
-		LastView:      project.GetLastView(),
-		LastFacetMap:  lastFacetMap,
+		LastView:       project.GetLastView(),
+		LastFacetMap:   lastFacetMap,
 	}
 }
 

@@ -7,7 +7,11 @@ import { Log } from '@utils';
 import { useLocation } from 'wouter';
 
 import styles from './Home.module.css';
-import { LazyExportsPanel, LazyProjectsPanel } from './LazyPanels';
+import {
+  LazyExportsPanel,
+  LazyNamesPanel,
+  LazyProjectsPanel,
+} from './LazyPanels';
 import { QuickActions } from './QuickActions';
 import { RecentActivity } from './RecentActivity';
 import { SampleImageSection } from './SampleImageSection';
@@ -57,6 +61,7 @@ export const Home = () => {
               <Grid>
                 <PanelProjects />
                 <PanelExports />
+                <PanelNames />
               </Grid>
             </section>
           </Grid.Col>
@@ -82,6 +87,25 @@ export const Home = () => {
         onUpload={handleAddressesUpload}
       />
     </Container>
+  );
+};
+
+const PanelNames = () => {
+  const [, navigate] = useLocation();
+  return (
+    <Grid.Col span={{ base: 12, sm: 6 }}>
+      <div className={styles.panelCard}>
+        <LazyPanel priority="high">
+          <Suspense fallback={<PanelSkeleton title="Names" />}>
+            <LazyNamesPanel
+              onViewAll={() => {
+                navigate('/names');
+              }}
+            />
+          </Suspense>
+        </LazyPanel>
+      </div>
+    </Grid.Col>
   );
 };
 
@@ -132,7 +156,7 @@ const PanelRecentActivity = () => {
       type: 'image' as const,
       message: 'Generated new image from address 0x1234...5678',
       timestamp: new Date(Date.now() - 1000 * 60 * 30),
-      onClick: () => navigate('/dalledress'),
+      onClick: () => navigate('/ballad'),
     },
     {
       id: '2',
@@ -163,7 +187,7 @@ const PanelQuickActions = ({ viewGallery }: GalleryProps) => {
   const uploadDialog = useUploadAddressesDialog();
 
   const handleGenerateImage = () => {
-    navigate('/dalledress');
+    navigate('/ballad');
   };
 
   const handleUploadAddresses = () => {

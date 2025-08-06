@@ -20,6 +20,10 @@ func (a *App) Reload(payload *types.Payload) error {
 	switch a.GetLastView() {
 	case "exports":
 		return a.ReloadExports(payload)
+	case "names":
+		return a.ReloadNames(payload)
+	case "contracts":
+		return a.ReloadContracts(payload)
 	default:
 		panic("unknown view in Reload" + a.GetLastView())
 	}
@@ -29,6 +33,8 @@ func (a *App) Reload(payload *types.Payload) error {
 func (a *App) GetRegisteredViews() []string {
 	return []string{
 		"exports",
+		"names",
+		"contracts",
 	}
 }
 

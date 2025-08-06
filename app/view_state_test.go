@@ -155,6 +155,117 @@ func TestLastFacet(t *testing.T) {
 	}
 }
 
+func TestFilterState(t *testing.T) {
+	viewStateKey := project.ViewStateKey{ViewName: "monitors", FacetName: "list"}
+	filterState := project.FilterState{
+		Sorting:   map[string]interface{}{"column": "name", "direction": "asc"},
+		Filtering: map[string]interface{}{"search": "test search"},
+		Other:     map[string]interface{}{"pageSize": 50, "page": 2},
+	}
+
+	tests := []struct {
+		name      string
+		setup     func(*App)
+		expectErr bool
+	}{
+		{
+			name: "no active project",
+			setup: func(app *App) {
+				// No active project
+			},
+			expectErr: true,
+		},
+		{
+			name: "has active project",
+			setup: func(app *App) {
+				proj := app.Projects.NewProject("test", base.ZeroAddr, []string{"mainnet"})
+				proj.Path = "/tmp/test.tbx" // Set path so project can save
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app := &App{
+				Projects: project.NewManager(),
+				Preferences: &preferences.Preferences{
+					User: preferences.UserPreferences{},
+				},
+			}
+			tt.setup(app)
+
+			// Test SetFilterState
+			err := app.SetFilterState(viewStateKey, filterState)
+			if tt.expectErr {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), "no active project")
+				return
+			}
+			require.NoError(t, err)
+
+			// Test GetFilterState
+			retrievedState, err := app.GetFilterState(viewStateKey)
+			require.NoError(t, err)
+			assert.Equal(t, filterState.Sorting["column"], retrievedState.Sorting["column"])
+			assert.Equal(t, filterState.Filtering["search"], retrievedState.Filtering["search"])
+
+			// Test ClearFilterState
+			err = app.ClearFilterState(viewStateKey)
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestGetWizardReturn(t *testing.T) {
+	tests := []struct {
+		name     string
+		setup    func(*App)
+		expected string
+	}{
+		{
+			name: "no wizard in path",
+			setup: func(app *App) {
+				proj := app.Projects.NewProject("test", base.ZeroAddr, []string{"mainnet"})
+				proj.Path = "/tmp/test.tbx" // Set path so project can save
+				_ = proj.SetLastView("/monitors")
+			},
+			expected: "monitors",
+		},
+		{
+			name: "wizard in path",
+			setup: func(app *App) {
+				proj := app.Projects.NewProject("test", base.ZeroAddr, []string{"mainnet"})
+				proj.Path = "/tmp/test.tbx" // Set path so project can save
+				_ = proj.SetLastView("monitors/wizard")
+			},
+			expected: "monitors/",
+		},
+		{
+			name: "no active project",
+			setup: func(app *App) {
+				// No active project
+			},
+			expected: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app := &App{
+				Projects: project.NewManager(),
+				Preferences: &preferences.Preferences{
+					User: preferences.UserPreferences{},
+				},
+			}
+			tt.setup(app)
+
+			result := app.GetWizardReturn()
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
 func TestSetViewAndFacet(t *testing.T) {
 	tests := []struct {
 		name      string

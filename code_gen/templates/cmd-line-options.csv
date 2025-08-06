@@ -2,3 +2,4 @@ num,folder,group,route,tool,longName,hotKey,def_val,attributes,handler,option_ty
 6000,,Types,,,,,,,,group,,,TrueBlocks Types,,,TrueBlocks Types
 #
 6300,pkg,Types,exports,jim,exports,e,,visible|docs,,command,string,string,Exports route,,code,The route for the exports folder
+6500,pkg,Types,names,jim,names,n,,visible|docs,,command,string,string,Names route,,code,The route for the names folder

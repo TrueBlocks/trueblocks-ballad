@@ -14,11 +14,19 @@ export const exportsFacets: DataFacetConfig[] = [
     label: toProperCase(types.DataFacet.ASSETS),
   },
   {
+    id: types.DataFacet.STATEMENTS,
+    label: toProperCase(types.DataFacet.STATEMENTS),
+  },
+  {
     id: types.DataFacet.BALANCES,
     label: toProperCase(types.DataFacet.BALANCES),
   },
   {
-    id: types.DataFacet.STATEMENTS,
-    label: toProperCase(types.DataFacet.STATEMENTS),
+    id: types.DataFacet.TRANSFERS,
+    label: toProperCase(types.DataFacet.TRANSFERS),
+  },
+  {
+    id: types.DataFacet.LOGS,
+    label: toProperCase(types.DataFacet.LOGS),
   },
 ];

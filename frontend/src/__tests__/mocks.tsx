@@ -208,6 +208,7 @@ const createInitialMockRuntimeBridge = (): RuntimeBridgeFunctions => ({
 
 const createInitialMockAppBridge = (): AppBridgeFunctions => ({
   GetAppId: vi.fn().mockResolvedValue('mockAppId'),
+  GetWizardReturn: vi.fn().mockResolvedValue('/mock-wizard-return'),
   GetUserPreferences: vi
     .fn()
     .mockResolvedValue({ name: 'Mock User', email: 'mock@example.com' }),

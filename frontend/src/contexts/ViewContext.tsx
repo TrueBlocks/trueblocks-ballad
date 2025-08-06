@@ -7,7 +7,13 @@ import {
   useState,
 } from 'react';
 
-import { project, sdk } from '@models';
+import {
+  GetProjectViewState,
+  GetRegisteredViews,
+  SetProjectViewState,
+} from '@app';
+import { project, sdk, types } from '@models';
+import { Log } from '@utils';
 
 import { viewStateKeyToString } from '.';
 import { createEmptySortSpec } from '../utils/sortSpec';
@@ -147,7 +153,36 @@ export const ViewContextProvider = ({ children }: { children: ReactNode }) => {
         };
       });
 
-      // Note: Filter state persistence has been removed
+      // Fire-and-forget background persistence
+      (async () => {
+        try {
+          const viewStates = await GetProjectViewState(viewStateKey.viewName);
+          const facetName = viewStateKey.facetName;
+
+          const existingState = viewStates[facetName] || {
+            sorting: {},
+            filtering: {},
+            other: {},
+          };
+
+          const updatedState: project.FilterState = {
+            ...existingState,
+            sorting: {
+              ...(existingState.sorting || {}),
+              sortSpec: sort,
+            },
+          };
+
+          const updatedViewStates = {
+            ...viewStates,
+            [facetName]: updatedState,
+          };
+
+          await SetProjectViewState(viewStateKey.viewName, updatedViewStates);
+        } catch (error) {
+          Log(`Failed to persist sorting state to backend: ${error}`);
+        }
+      })();
     },
     [],
   );
@@ -168,14 +203,84 @@ export const ViewContextProvider = ({ children }: { children: ReactNode }) => {
         [key]: filter,
       }));
 
-      // Note: Filter state persistence has been removed
+      // Fire-and-forget background persistence
+      (async () => {
+        try {
+          const viewStates = await GetProjectViewState(viewStateKey.viewName);
+          const facetName = viewStateKey.facetName;
+
+          const existingState = viewStates[facetName] || {
+            sorting: {},
+            filtering: {},
+            other: {},
+          };
+
+          const updatedState: project.FilterState = {
+            ...existingState,
+            filtering: {
+              ...(existingState.filtering || {}),
+              searchTerm: filter,
+            },
+          };
+
+          const updatedViewStates = {
+            ...viewStates,
+            [facetName]: updatedState,
+          };
+
+          await SetProjectViewState(viewStateKey.viewName, updatedViewStates);
+        } catch (error) {
+          Log(`Failed to persist filtering state to backend: ${error}`);
+        }
+      })();
     },
     [],
   );
 
   const restoreProjectFilterStates = useCallback(async () => {
-    // Note: Filter state persistence has been removed - using fresh state
-    setViewPagination({});
+    try {
+      const viewNames = await GetRegisteredViews();
+
+      for (const viewName of viewNames) {
+        try {
+          const viewStates = await GetProjectViewState(viewName);
+
+          Object.entries(viewStates).forEach(([facetName, filterState]) => {
+            if (filterState.sorting?.sortSpec) {
+              const viewStateKey: project.ViewStateKey = {
+                viewName,
+                facetName: facetName as types.DataFacet,
+              };
+              const key = viewStateKeyToString(viewStateKey);
+
+              setViewSorting((prev) => ({
+                ...prev,
+                [key]: filterState.sorting?.sortSpec || null,
+              }));
+            }
+
+            if (filterState.filtering?.searchTerm) {
+              const viewStateKey: project.ViewStateKey = {
+                viewName,
+                facetName: facetName as types.DataFacet,
+              };
+              const key = viewStateKeyToString(viewStateKey);
+
+              setViewFiltering((prev) => ({
+                ...prev,
+                [key]: filterState.filtering?.searchTerm || '',
+              }));
+            }
+          });
+        } catch (viewError) {
+          Log(`No stored state for view ${viewName}: ${viewError}`);
+        }
+      }
+
+      setViewPagination({});
+    } catch (error) {
+      Log(`Failed to restore project filter states: ${error}`);
+    }
   }, []);
 
   const contextValue = useMemo(

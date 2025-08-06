@@ -21,8 +21,20 @@ export const getColumns = (dataFacet: types.DataFacet): FormField[] => {
       return getStatementsColumns();
     case types.DataFacet.BALANCES:
       return getBalancesColumns();
+    case types.DataFacet.TRANSFERS:
+      return getTransfersColumns();
+    case types.DataFacet.TRANSACTIONS:
+      return getTransactionsColumns();
+    case types.DataFacet.WITHDRAWALS:
+      return getWithdrawalsColumns();
     case types.DataFacet.ASSETS:
       return getAssetsColumns();
+    case types.DataFacet.LOGS:
+      return getLogsColumns();
+    case types.DataFacet.TRACES:
+      return getTracesColumns();
+    case types.DataFacet.RECEIPTS:
+      return getReceiptsColumns();
     default:
       return [];
   }
@@ -159,6 +171,150 @@ const getBalancesColumns = (): FormField[] => [
     header: 'Actions',
     label: 'Actions',
     type: 'text',
+    width: '120px',
+  },
+];
+
+const getLogsColumns = (): FormField[] => [
+  // EXISTING_CODE
+  // EXISTING_CODE
+  {
+    key: 'date',
+    name: 'date',
+    header: 'Date',
+    label: 'Date',
+    type: 'datetime',
+    width: '120px',
+    render: renderDate,
+  },
+  {
+    key: 'address',
+    name: 'address',
+    header: 'Address',
+    label: 'Address',
+    type: 'address',
+    width: '340px',
+  },
+  {
+    key: 'name',
+    name: 'name',
+    header: 'Name',
+    label: 'Name',
+    type: 'text',
+    width: '200px',
+    render: renderName,
+  },
+  {
+    key: 'articulatedLog',
+    name: 'articulatedLog',
+    header: 'Articulated Log',
+    label: 'Articulated Log',
+    type: 'Function',
+    width: '120px',
+    render: renderArticulatedLog,
+  },
+];
+
+const getReceiptsColumns = (): FormField[] => [
+  // EXISTING_CODE
+  // EXISTING_CODE
+  {
+    key: 'cumulativeGasUsed',
+    name: 'cumulativeGasUsed',
+    header: 'Cumulative Gas Used',
+    label: 'Cumulative Gas Used',
+    type: 'gas',
+    width: '120px',
+  },
+  {
+    key: 'effectiveGasPrice',
+    name: 'effectiveGasPrice',
+    header: 'Effective Gas Price',
+    label: 'Effective Gas Price',
+    type: 'gas',
+    width: '120px',
+  },
+  {
+    key: 'from',
+    name: 'from',
+    header: 'From',
+    label: 'From',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'to',
+    name: 'to',
+    header: 'To',
+    label: 'To',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'blockHash',
+    name: 'blockHash',
+    header: 'Block Hash',
+    label: 'Block Hash',
+    type: 'hash',
+    width: '120px',
+  },
+  {
+    key: 'blockNumber',
+    name: 'blockNumber',
+    header: 'Block Number',
+    label: 'Block Number',
+    type: 'blknum',
+    width: '120px',
+  },
+  {
+    key: 'contractAddress',
+    name: 'contractAddress',
+    header: 'Contract Address',
+    label: 'Contract Address',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'gasUsed',
+    name: 'gasUsed',
+    header: 'Gas Used',
+    label: 'Gas Used',
+    type: 'gas',
+    width: '120px',
+  },
+  {
+    key: 'isError',
+    name: 'isError',
+    header: 'Error',
+    label: 'Error',
+    type: 'checkbox',
+    width: '80px',
+  },
+  {
+    key: 'status',
+    name: 'status',
+    header: 'Status',
+    label: 'Status',
+    type: 'value',
+    width: '120px',
+  },
+  {
+    key: 'transactionHash',
+    name: 'transactionHash',
+    header: 'Transaction Hash',
+    label: 'Transaction Hash',
+    type: 'hash',
+    width: '120px',
+  },
+  {
+    key: 'transactionIndex',
+    name: 'transactionIndex',
+    header: 'Transaction Index',
+    label: 'Transaction Index',
+    type: 'txnum',
     width: '120px',
   },
 ];
@@ -475,6 +631,433 @@ const getStatementsColumns = (): FormField[] => [
     label: 'Correcting Reasons',
     type: 'text',
     width: '200px',
+  },
+];
+
+const getTracesColumns = (): FormField[] => [
+  // EXISTING_CODE
+  // EXISTING_CODE
+  {
+    key: 'date',
+    name: 'date',
+    header: 'Date',
+    label: 'Date',
+    type: 'datetime',
+    width: '120px',
+    render: renderDate,
+  },
+  {
+    key: 'type',
+    name: 'type',
+    header: 'Type',
+    label: 'Type',
+    type: 'text',
+    width: '200px',
+  },
+  {
+    key: 'compressedTrace',
+    name: 'compressedTrace',
+    header: 'Compressed Trace',
+    label: 'Compressed Trace',
+    type: 'text',
+    width: '200px',
+    render: renderCompressedTrace,
+  },
+  {
+    key: 'error',
+    name: 'error',
+    header: 'Error',
+    label: 'Error',
+    type: 'text',
+    width: '200px',
+  },
+];
+
+const getTransactionsColumns = (): FormField[] => [
+  // EXISTING_CODE
+  // EXISTING_CODE
+  {
+    key: 'gasUsed',
+    name: 'gasUsed',
+    header: 'Gas Used',
+    label: 'Gas Used',
+    type: 'gas',
+    width: '120px',
+  },
+  {
+    key: 'maxPriorityFeePerGas',
+    name: 'maxPriorityFeePerGas',
+    header: 'Max Priority Fee Per Gas',
+    label: 'Max Priority Fee Per Gas',
+    type: 'gas',
+    width: '120px',
+  },
+  {
+    key: 'type',
+    name: 'type',
+    header: 'Type',
+    label: 'Type',
+    type: 'text',
+    width: '200px',
+  },
+  {
+    key: 'maxFeePerGas',
+    name: 'maxFeePerGas',
+    header: 'Max Fee Per Gas',
+    label: 'Max Fee Per Gas',
+    type: 'gas',
+    width: '120px',
+  },
+  {
+    key: 'nonce',
+    name: 'nonce',
+    header: 'Nonce',
+    label: 'Nonce',
+    type: 'value',
+    width: '120px',
+  },
+  {
+    key: 'date',
+    name: 'date',
+    header: 'Date',
+    label: 'Date',
+    type: 'datetime',
+    width: '120px',
+    render: renderDate,
+  },
+  {
+    key: 'from',
+    name: 'from',
+    header: 'From',
+    label: 'From',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'to',
+    name: 'to',
+    header: 'To',
+    label: 'To',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'value',
+    name: 'value',
+    header: 'Value',
+    label: 'Value',
+    type: 'wei',
+    width: '120px',
+  },
+  {
+    key: 'ether',
+    name: 'ether',
+    header: 'Ether',
+    label: 'Ether',
+    type: 'ether',
+    width: '120px',
+    render: renderEther,
+  },
+  {
+    key: 'gas',
+    name: 'gas',
+    header: 'Gas',
+    label: 'Gas',
+    type: 'gas',
+    width: '120px',
+  },
+  {
+    key: 'gasPrice',
+    name: 'gasPrice',
+    header: 'Gas Price',
+    label: 'Gas Price',
+    type: 'gas',
+    width: '120px',
+  },
+  {
+    key: 'gasCost',
+    name: 'gasCost',
+    header: 'Gas Cost',
+    label: 'Gas Cost',
+    type: 'gas',
+    width: '120px',
+    render: renderGasCost,
+  },
+  {
+    key: 'input',
+    name: 'input',
+    header: 'Input',
+    label: 'Input',
+    type: 'bytes',
+    width: '120px',
+  },
+  {
+    key: 'hasToken',
+    name: 'hasToken',
+    header: 'Has Token',
+    label: 'Has Token',
+    type: 'checkbox',
+    width: '80px',
+  },
+  {
+    key: 'isError',
+    name: 'isError',
+    header: 'Error',
+    label: 'Error',
+    type: 'checkbox',
+    width: '80px',
+  },
+  {
+    key: 'compressedTx',
+    name: 'compressedTx',
+    header: 'Compressed Tx',
+    label: 'Compressed Tx',
+    type: 'text',
+    width: '200px',
+    render: renderCompressedTx,
+  },
+];
+
+const getTransfersColumns = (): FormField[] => [
+  // EXISTING_CODE
+  // EXISTING_CODE
+  {
+    key: 'blockNumber',
+    name: 'blockNumber',
+    header: 'Block Number',
+    label: 'Block Number',
+    type: 'blknum',
+    width: '120px',
+  },
+  {
+    key: 'transactionIndex',
+    name: 'transactionIndex',
+    header: 'Transaction Index',
+    label: 'Transaction Index',
+    type: 'txnum',
+    width: '120px',
+  },
+  {
+    key: 'logIndex',
+    name: 'logIndex',
+    header: 'Log Index',
+    label: 'Log Index',
+    type: 'lognum',
+    width: '120px',
+  },
+  {
+    key: 'date',
+    name: 'date',
+    header: 'Date',
+    label: 'Date',
+    type: 'datetime',
+    width: '120px',
+    render: renderDate,
+  },
+  {
+    key: 'holder',
+    name: 'holder',
+    header: 'Holder',
+    label: 'Holder',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'asset',
+    name: 'asset',
+    header: 'Asset',
+    label: 'Asset',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'decimals',
+    name: 'decimals',
+    header: 'Decimals',
+    label: 'Decimals',
+    type: 'number',
+    width: '120px',
+  },
+  {
+    key: 'sender',
+    name: 'sender',
+    header: 'Sender',
+    label: 'Sender',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'recipient',
+    name: 'recipient',
+    header: 'Recipient',
+    label: 'Recipient',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'amountIn',
+    name: 'amountIn',
+    header: 'Amount In',
+    label: 'Amount In',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'internalIn',
+    name: 'internalIn',
+    header: 'Internal In',
+    label: 'Internal In',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'minerBaseRewardIn',
+    name: 'minerBaseRewardIn',
+    header: 'Miner Base Reward In',
+    label: 'Miner Base Reward In',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'minerNephewRewardIn',
+    name: 'minerNephewRewardIn',
+    header: 'Miner Nephew Reward In',
+    label: 'Miner Nephew Reward In',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'minerTxFeeIn',
+    name: 'minerTxFeeIn',
+    header: 'Miner Tx Fee In',
+    label: 'Miner Tx Fee In',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'minerUncleRewardIn',
+    name: 'minerUncleRewardIn',
+    header: 'Miner Uncle Reward In',
+    label: 'Miner Uncle Reward In',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'prefundIn',
+    name: 'prefundIn',
+    header: 'Prefund In',
+    label: 'Prefund In',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'selfDestructIn',
+    name: 'selfDestructIn',
+    header: 'Self Destruct In',
+    label: 'Self Destruct In',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'amountOut',
+    name: 'amountOut',
+    header: 'Amount Out',
+    label: 'Amount Out',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'internalOut',
+    name: 'internalOut',
+    header: 'Internal Out',
+    label: 'Internal Out',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'gasOut',
+    name: 'gasOut',
+    header: 'Gas Out',
+    label: 'Gas Out',
+    type: 'int256',
+    width: '120px',
+  },
+  {
+    key: 'selfDestructOut',
+    name: 'selfDestructOut',
+    header: 'Self Destruct Out',
+    label: 'Self Destruct Out',
+    type: 'int256',
+    width: '120px',
+  },
+];
+
+const getWithdrawalsColumns = (): FormField[] => [
+  // EXISTING_CODE
+  // EXISTING_CODE
+  {
+    key: 'address',
+    name: 'address',
+    header: 'Address',
+    label: 'Address',
+    type: 'address',
+    width: '340px',
+    readOnly: true,
+  },
+  {
+    key: 'amount',
+    name: 'amount',
+    header: 'Amount',
+    label: 'Amount',
+    type: 'wei',
+    width: '120px',
+  },
+  {
+    key: 'ether',
+    name: 'ether',
+    header: 'Ether',
+    label: 'Ether',
+    type: 'ether',
+    width: '120px',
+  },
+  {
+    key: 'blockNumber',
+    name: 'blockNumber',
+    header: 'Block Number',
+    label: 'Block Number',
+    type: 'blknum',
+    width: '120px',
+  },
+  {
+    key: 'index',
+    name: 'index',
+    header: 'Index',
+    label: 'Index',
+    type: 'value',
+    width: '120px',
+  },
+  {
+    key: 'date',
+    name: 'date',
+    header: 'Date',
+    label: 'Date',
+    type: 'datetime',
+    width: '120px',
+    render: renderDate,
+  },
+  {
+    key: 'validatorIndex',
+    name: 'validatorIndex',
+    header: 'Validator Index',
+    label: 'Validator Index',
+    type: 'value',
+    width: '120px',
   },
 ];
 

@@ -1,0 +1,188 @@
+// Copyright 2016, 2026 The TrueBlocks Authors. All rights reserved.
+// Use of this source code is governed by a license that can
+// be found in the LICENSE file.
+/*
+ * Parts of this file were auto generated. Edit only those parts of
+ * the code inside of 'EXISTING_CODE' tags.
+ */
+
+package contracts
+
+import (
+	"fmt"
+	"sync"
+
+	// EXISTING_CODE
+	// EXISTING_CODE
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/store"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
+
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/output"
+	sdk "github.com/TrueBlocks/trueblocks-sdk/v5"
+)
+
+// EXISTING_CODE
+// EXISTING_CODE
+
+type Contract = sdk.Contract
+type Log = sdk.Log
+
+var (
+	contractsStore   *store.Store[Contract]
+	contractsStoreMu sync.Mutex
+
+	logsStore   *store.Store[Log]
+	logsStoreMu sync.Mutex
+)
+
+func (c *ContractsCollection) getContractsStore(payload *types.Payload, facet types.DataFacet) *store.Store[Contract] {
+	contractsStoreMu.Lock()
+	defer contractsStoreMu.Unlock()
+
+	chain := payload.Chain
+	address := payload.Address
+	// contract := payload.Contract
+	theStore := contractsStore
+	if theStore == nil {
+		queryFunc := func(ctx *output.RenderCtx) error {
+			// EXISTING_CODE
+			// Real SDK calls would go here
+			// EXISTING_CODE
+			return nil
+		}
+
+		processFunc := func(item interface{}) *Contract {
+			if it, ok := item.(*Contract); ok {
+				return it
+			}
+			return nil
+		}
+
+		mappingFunc := func(item *Contract) (key interface{}, includeInMap bool) {
+			// EXISTING_CODE
+			// EXISTING_CODE
+			return nil, false
+		}
+
+		storeName := c.GetStoreName(facet, chain, address)
+		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
+
+		// Add mock data to store
+		mockContracts := sdk.CreateContracts()
+		for i, c := range mockContracts {
+			theStore.AddItem(c, i)
+		}
+		theStore.ChangeState(0, store.StateLoaded, "Mock data loaded")
+
+		contractsStore = theStore
+	}
+
+	return theStore
+}
+
+func (c *ContractsCollection) getLogsStore(payload *types.Payload, facet types.DataFacet) *store.Store[Log] {
+	logsStoreMu.Lock()
+	defer logsStoreMu.Unlock()
+
+	chain := payload.Chain
+	address := payload.Address
+	// TODO: WE NEED THIS ON THE PAYLOAD
+	// contract := payload.Contract
+	contract := "0x8fbea07446ddf4518b1a7ba2b4f11bd140a8df41"
+	theStore := logsStore
+	if theStore == nil {
+		queryFunc := func(ctx *output.RenderCtx) error {
+			// EXISTING_CODE
+			exportOpts := sdk.ExportOptions{
+				Globals:    sdk.Globals{Cache: true, Verbose: true, Chain: chain},
+				RenderCtx:  ctx,
+				Addrs:      []string{address},
+				Emitter:    []string{contract},
+				Articulate: true,
+			}
+			if _, _, err := exportOpts.ExportLogs(); err != nil {
+				wrappedErr := types.NewSDKError("exports", ContractsEvents, "fetch", err)
+				logging.LogBackend(fmt.Sprintf("Exports logs SDK query error: %v", wrappedErr))
+				return wrappedErr
+			}
+			// EXISTING_CODE
+			return nil
+		}
+
+		processFunc := func(item interface{}) *Log {
+			if it, ok := item.(*Log); ok {
+				return it
+			}
+			return nil
+		}
+
+		mappingFunc := func(item *Log) (key interface{}, includeInMap bool) {
+			// EXISTING_CODE
+			// EXISTING_CODE
+			return nil, false
+		}
+
+		storeName := c.GetStoreName(facet, chain, address)
+		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
+		logsStore = theStore
+	}
+
+	return theStore
+}
+
+func (c *ContractsCollection) GetStoreName(dataFacet types.DataFacet, chain, address string) string {
+	_ = chain
+	_ = address
+	name := ""
+	switch dataFacet {
+	case ContractsDashboard:
+		name = "contracts-contracts"
+	case ContractsExecute:
+		name = "contracts-contracts"
+	case ContractsEvents:
+		name = "contracts-logs"
+	default:
+		return ""
+	}
+	return name
+}
+
+// TODO: THIS SHOULD BE PER STORE - SEE EXPORT COMMENTS
+func GetContractsCount(payload *types.Payload) (int, error) {
+	// chain := payload.Chain
+	// countOpts := sdk.ContractsOptions{
+	// 	Globals: sdk.Globals{Cache: true, Chain: chain},
+	// }
+	// if countResult, _, err := countOpts.ContractsCount(); err != nil {
+	// 	return 0, fmt.Errorf("ContractsCount query error: %v", err)
+	// } else if len(countResult) > 0 {
+	// 	return int(countResult[0].Count), nil
+	// }
+	return 0, nil
+}
+
+var (
+	collections   = make(map[store.CollectionKey]*ContractsCollection)
+	collectionsMu sync.Mutex
+)
+
+func GetContractsCollection(payload *types.Payload) *ContractsCollection {
+	collectionsMu.Lock()
+	defer collectionsMu.Unlock()
+
+	pl := *payload
+	pl.Address = ""
+
+	key := store.GetCollectionKey(&pl)
+	if collection, exists := collections[key]; exists {
+		return collection
+	}
+
+	collection := NewContractsCollection(payload)
+	collections[key] = collection
+	return collection
+}
+
+// EXISTING_CODE
+// EXISTING_CODE

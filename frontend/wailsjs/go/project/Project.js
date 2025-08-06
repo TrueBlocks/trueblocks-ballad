@@ -6,12 +6,28 @@ export function AddAddress(arg1) {
   return window['go']['project']['Project']['AddAddress'](arg1);
 }
 
+export function AddContract(arg1) {
+  return window['go']['project']['Project']['AddContract'](arg1);
+}
+
+export function ClearAllFilterStates() {
+  return window['go']['project']['Project']['ClearAllFilterStates']();
+}
+
+export function ClearFilterState(arg1) {
+  return window['go']['project']['Project']['ClearFilterState'](arg1);
+}
+
 export function GetActiveAddress() {
   return window['go']['project']['Project']['GetActiveAddress']();
 }
 
 export function GetActiveChain() {
   return window['go']['project']['Project']['GetActiveChain']();
+}
+
+export function GetActiveContract() {
+  return window['go']['project']['Project']['GetActiveContract']();
 }
 
 export function GetActivePeriod() {
@@ -24,6 +40,14 @@ export function GetAddresses() {
 
 export function GetChains() {
   return window['go']['project']['Project']['GetChains']();
+}
+
+export function GetContracts() {
+  return window['go']['project']['Project']['GetContracts']();
+}
+
+export function GetFilterState(arg1) {
+  return window['go']['project']['Project']['GetFilterState'](arg1);
 }
 
 export function GetLastFacet(arg1) {
@@ -46,6 +70,10 @@ export function RemoveAddress(arg1) {
   return window['go']['project']['Project']['RemoveAddress'](arg1);
 }
 
+export function RemoveContract(arg1) {
+  return window['go']['project']['Project']['RemoveContract'](arg1);
+}
+
 export function Save() {
   return window['go']['project']['Project']['Save']();
 }
@@ -62,8 +90,16 @@ export function SetActiveChain(arg1) {
   return window['go']['project']['Project']['SetActiveChain'](arg1);
 }
 
+export function SetActiveContract(arg1) {
+  return window['go']['project']['Project']['SetActiveContract'](arg1);
+}
+
 export function SetActivePeriod(arg1) {
   return window['go']['project']['Project']['SetActivePeriod'](arg1);
+}
+
+export function SetFilterState(arg1, arg2) {
+  return window['go']['project']['Project']['SetFilterState'](arg1, arg2);
 }
 
 export function SetLastFacet(arg1, arg2) {

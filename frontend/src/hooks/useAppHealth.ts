@@ -1,8 +1,19 @@
+import { useEffect } from 'react';
+
+import { checkAndNavigateToWizard } from '@utils';
+
 import { useAppNavigation } from './useAppNavigation';
 
 export const useAppHealth = () => {
-  const { ready } = useAppNavigation();
+  const { ready, isWizard, navigate } = useAppNavigation();
 
-  // Health check hook simplified - no wizard logic needed
-  return { ready };
+  useEffect(() => {
+    if (!ready) return;
+
+    const interval = setInterval(() => {
+      checkAndNavigateToWizard(navigate, isWizard);
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [ready, isWizard, navigate]);
 };

@@ -8,8 +8,8 @@ produced_by = "exports"
 disable_go = false
 
 [[facets]]
-name = "Assets"
-store = "Assets"
+name = "Statements"
+store = "Statements"
 viewType = ""
 
 [[facets]]
@@ -18,6 +18,37 @@ store = "Balances"
 viewType = ""
 
 [[facets]]
-name = "Statements"
-store = "Statements"
+name = "Transfers"
+store = "Transfers"
 viewType = ""
+
+[[facets]]
+name = "Transactions"
+store = "Transactions"
+viewType = ""
+
+[[facets]]
+name = "Withdrawals"
+store = "Withdrawals"
+viewType = ""
+
+[[facets]]
+name = "Assets"
+store = "Assets"
+viewType = ""
+
+[[facets]]
+name = "Logs"
+store = "Logs"
+viewType = ""
+
+[[facets]]
+name = "Traces"
+store = "Traces"
+viewType = ""
+
+[[facets]]
+name = "Receipts"
+store = "Receipts"
+viewType = ""
+

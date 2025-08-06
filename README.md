@@ -62,6 +62,7 @@ yarn lint
 │       ├── layout
 │       ├── utils
 │       ├── views
+│       └── wizards
 │           └── hooks
 └── pkg
     ├── markdown

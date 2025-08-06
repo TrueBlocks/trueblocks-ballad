@@ -11,6 +11,7 @@
     "test": "vitest run",
     "lint": "yarn eslint .  --max-warnings=0",
     "lint:check": "lint",
+    "type-check": "tsc --noEmit",
     "CONVENTIONS": "echo 'See copilot.md for development conventions'"
   },
   "dependencies": {

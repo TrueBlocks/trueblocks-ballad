@@ -13,12 +13,13 @@ export const ProjectContextBar = ({}) => {
     projects,
     activeAddress,
     activeChain,
+    activeContract,
     activePeriod,
     setActiveAddress,
     setActiveChain,
+    setActiveContract,
     setActivePeriod,
     switchProject,
-    refreshProjects,
     loading,
   } = useActiveProject();
 
@@ -46,6 +47,8 @@ export const ProjectContextBar = ({}) => {
       label: chain,
     })) || [];
 
+  const contractOptions = [{ value: '', label: 'No Contract' }];
+
   const handleProjectChange = async (projectId: string | null) => {
     if (projectId && projectId !== currentProject?.id) {
       await switchProject(projectId);
@@ -65,6 +68,13 @@ export const ProjectContextBar = ({}) => {
   const handleChainChange = async (chain: string | null) => {
     if (chain && chain !== activeChain) {
       await setActiveChain(chain);
+    }
+  };
+
+  const handleContractChange = async (contract: string | null) => {
+    const contractValue = contract || '';
+    if (contractValue !== activeContract) {
+      await setActiveContract(contractValue);
     }
   };
 
@@ -109,6 +119,14 @@ export const ProjectContextBar = ({}) => {
           data={chainOptions}
           onChange={handleChainChange}
           w={100}
+        />
+        <Select
+          size="xs"
+          placeholder="Contract"
+          value={activeContract}
+          data={contractOptions}
+          onChange={handleContractChange}
+          w={140}
         />
         <Select
           size="xs"

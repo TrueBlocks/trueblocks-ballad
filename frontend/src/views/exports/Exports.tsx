@@ -95,8 +95,20 @@ export const Exports = () => {
         return pageData.statements || [];
       case types.DataFacet.BALANCES:
         return pageData.balances || [];
+      case types.DataFacet.TRANSFERS:
+        return pageData.transfers || [];
+      case types.DataFacet.TRANSACTIONS:
+        return pageData.transactions || [];
+      case types.DataFacet.WITHDRAWALS:
+        return pageData.withdrawals || [];
       case types.DataFacet.ASSETS:
         return pageData.assets || [];
+      case types.DataFacet.LOGS:
+        return pageData.logs || [];
+      case types.DataFacet.TRACES:
+        return pageData.traces || [];
+      case types.DataFacet.RECEIPTS:
+        return pageData.receipts || [];
       default:
         return [];
     }

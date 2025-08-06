@@ -54,17 +54,6 @@ func TestSummaryManager(t *testing.T) {
 	}
 }
 
-func TestTimestampExtraction(t *testing.T) {
-	item := &TestItem{Name: "test", Value: 123, Timestamp: 1234567890}
-
-	timestamp := extractTimestamp(item)
-	expected := int64(1234567890)
-
-	if timestamp != expected {
-		t.Errorf("Expected timestamp %d, got %d", expected, timestamp)
-	}
-}
-
 func TestStoreWithSummary(t *testing.T) {
 	// Create a simple store for testing
 	store := NewStore[TestItem](

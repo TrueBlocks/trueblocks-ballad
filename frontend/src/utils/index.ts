@@ -1,5 +1,6 @@
 export * from './Debugger';
 export * from './addresses';
+export * from './clipboard';
 export * from './debugLayout';
 export * from './ether';
 export * from './eventUtils';
@@ -7,4 +8,5 @@ export * from './log';
 export * from './periods';
 export * from './preferences';
 export * from './registerHotkeys';
+export * from './wizardUtils';
 export * from './useErrorHandler';

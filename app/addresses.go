@@ -96,3 +96,10 @@ func (a *App) RemoveAddressFromProject(addrStr string) error {
 	}
 	return fmt.Errorf("invalid address: %s", addrStr)
 }
+
+func (a *App) SetActiveContract(contract string) error {
+	if active := a.GetActiveProject(); active != nil {
+		return active.SetActiveContract(contract)
+	}
+	return fmt.Errorf("no active project")
+}

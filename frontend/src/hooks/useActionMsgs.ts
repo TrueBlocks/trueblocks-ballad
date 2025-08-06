@@ -11,6 +11,7 @@ type ActionType =
   | 'clean'
   | 'publish'
   | 'pin'
+  | 'copy'
   | 'reload';
 
 interface EntityConfig {
@@ -58,6 +59,9 @@ export const useActionMsgs = (entityType: EntityType) => {
     if (action === 'reload') {
       return `Reloaded ${config.singularName} data. Fetching fresh data...`;
     }
+    if (action === 'copy') {
+      return `${config.displayName} was copied successfully`;
+    }
 
     const entityName = ['create', 'update'].includes(action)
       ? config.displayName
@@ -81,6 +85,9 @@ export const useActionMsgs = (entityType: EntityType) => {
     }
     if (action === 'clean') {
       return `Failed to clean ${config.pluralName}: ${error}`;
+    }
+    if (action === 'copy') {
+      return `Failed to copy ${config.singularName}: ${error}`;
     }
 
     // Standard pattern for most actions

@@ -3,13 +3,16 @@ package app
 import (
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/store"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/types/names"
+
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
 )
 
-// // NameFromAddress resolves an Ethereum address to a named entity if one exists
-// func (a *App) NameFromAddress(address string) (*names.Name, bool) {
-// 	collection := names.GetNamesCollection(&types.Payload{})
-// 	return collection.NameFromAddress(base.HexToAddress(address))
-// }
+// NameFromAddress resolves an Ethereum address to a named entity if one exists
+func (a *App) NameFromAddress(address string) (*names.Name, bool) {
+	collection := names.GetNamesCollection(&types.Payload{})
+	return collection.NameFromAddress(base.HexToAddress(address))
+}
 
 // CancelFetch cancels an active data fetch operation for a specific data facet
 func (a *App) CancelFetch(dataFacet types.DataFacet) {

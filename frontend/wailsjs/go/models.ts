@@ -1,3 +1,22 @@
+export namespace app {
+	
+	export class UserInfoStatus {
+	    missingNameEmail: boolean;
+	    rpcUnavailable: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new UserInfoStatus(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.missingNameEmail = source["missingNameEmail"];
+	        this.rpcUnavailable = source["rpcUnavailable"];
+	    }
+	}
+
+}
+
 export namespace base {
 	
 	export class Address {
@@ -27,6 +46,53 @@ export namespace base {
 
 }
 
+export namespace contracts {
+	
+	export class ContractsPage {
+	    facet: types.DataFacet;
+	    contracts: types.Contract[];
+	    logs: types.Log[];
+	    totalItems: number;
+	    expectedTotal: number;
+	    isFetching: boolean;
+	    state: types.LoadState;
+	
+	    static createFrom(source: any = {}) {
+	        return new ContractsPage(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.facet = source["facet"];
+	        this.contracts = this.convertValues(source["contracts"], types.Contract);
+	        this.logs = this.convertValues(source["logs"], types.Log);
+	        this.totalItems = source["totalItems"];
+	        this.expectedTotal = source["expectedTotal"];
+	        this.isFetching = source["isFetching"];
+	        this.state = source["state"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
 export namespace crud {
 	
 	export enum Operation {
@@ -46,7 +112,13 @@ export namespace exports {
 	    facet: types.DataFacet;
 	    assets: types.Name[];
 	    balances: types.Token[];
+	    logs: types.Log[];
+	    receipts: types.Receipt[];
 	    statements: types.Statement[];
+	    traces: types.Trace[];
+	    transactions: types.Transaction[];
+	    transfers: types.Transfer[];
+	    withdrawals: types.Withdrawal[];
 	    totalItems: number;
 	    expectedTotal: number;
 	    isFetching: boolean;
@@ -61,7 +133,13 @@ export namespace exports {
 	        this.facet = source["facet"];
 	        this.assets = this.convertValues(source["assets"], types.Name);
 	        this.balances = this.convertValues(source["balances"], types.Token);
+	        this.logs = this.convertValues(source["logs"], types.Log);
+	        this.receipts = this.convertValues(source["receipts"], types.Receipt);
 	        this.statements = this.convertValues(source["statements"], types.Statement);
+	        this.traces = this.convertValues(source["traces"], types.Trace);
+	        this.transactions = this.convertValues(source["transactions"], types.Transaction);
+	        this.transfers = this.convertValues(source["transfers"], types.Transfer);
+	        this.withdrawals = this.convertValues(source["withdrawals"], types.Withdrawal);
 	        this.totalItems = source["totalItems"];
 	        this.expectedTotal = source["expectedTotal"];
 	        this.isFetching = source["isFetching"];
@@ -232,6 +310,51 @@ export namespace msgs {
 	    TAB_CYCLE = "hotkey:tab-cycle",
 	    IMAGES_CHANGED = "images:changed",
 	    PROJECT_OPENED = "project:opened",
+	}
+
+}
+
+export namespace names {
+	
+	export class NamesPage {
+	    facet: types.DataFacet;
+	    names: types.Name[];
+	    totalItems: number;
+	    expectedTotal: number;
+	    isFetching: boolean;
+	    state: types.LoadState;
+	
+	    static createFrom(source: any = {}) {
+	        return new NamesPage(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.facet = source["facet"];
+	        this.names = this.convertValues(source["names"], types.Name);
+	        this.totalItems = source["totalItems"];
+	        this.expectedTotal = source["expectedTotal"];
+	        this.isFetching = source["isFetching"];
+	        this.state = source["state"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }
@@ -456,6 +579,8 @@ export namespace project {
 	    activeAddress: base.Address;
 	    chains: string[];
 	    activeChain: string;
+	    contracts: string[];
+	    activeContract: string;
 	    activePeriod: string;
 	    filterStates: Record<string, FilterState>;
 	
@@ -474,6 +599,8 @@ export namespace project {
 	        this.activeAddress = this.convertValues(source["activeAddress"], base.Address);
 	        this.chains = source["chains"];
 	        this.activeChain = source["activeChain"];
+	        this.contracts = source["contracts"];
+	        this.activeContract = source["activeContract"];
 	        this.activePeriod = source["activePeriod"];
 	        this.filterStates = this.convertValues(source["filterStates"], FilterState, true);
 	    }
@@ -529,9 +656,23 @@ export namespace types {
 	    ERROR = "error",
 	}
 	export enum DataFacet {
+	    DASHBOARD = "dashboard",
+	    EXECUTE = "execute",
+	    EVENTS = "events",
 	    STATEMENTS = "statements",
 	    BALANCES = "balances",
+	    TRANSFERS = "transfers",
+	    TRANSACTIONS = "transactions",
+	    WITHDRAWALS = "withdrawals",
 	    ASSETS = "assets",
+	    LOGS = "logs",
+	    TRACES = "traces",
+	    RECEIPTS = "receipts",
+	    ALL = "all",
+	    CUSTOM = "custom",
+	    PREFUND = "prefund",
+	    REGULAR = "regular",
+	    BADDRESS = "baddress",
 	}
 	export class Parameter {
 	    components?: Parameter[];
@@ -623,6 +764,103 @@ export namespace types {
 		    return a;
 		}
 	}
+	export class Abi {
+	    address: base.Address;
+	    fileSize: number;
+	    functions: Function[];
+	    hasConstructor: boolean;
+	    hasFallback: boolean;
+	    isEmpty: boolean;
+	    isKnown: boolean;
+	    lastModDate: string;
+	    nEvents: number;
+	    nFunctions: number;
+	    name: string;
+	    path: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Abi(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.address = this.convertValues(source["address"], base.Address);
+	        this.fileSize = source["fileSize"];
+	        this.functions = this.convertValues(source["functions"], Function);
+	        this.hasConstructor = source["hasConstructor"];
+	        this.hasFallback = source["hasFallback"];
+	        this.isEmpty = source["isEmpty"];
+	        this.isKnown = source["isKnown"];
+	        this.lastModDate = source["lastModDate"];
+	        this.nEvents = source["nEvents"];
+	        this.nFunctions = source["nFunctions"];
+	        this.name = source["name"];
+	        this.path = source["path"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Contract {
+	    abi?: Abi;
+	    address: base.Address;
+	    date: string;
+	    errorCount: number;
+	    lastError: string;
+	    lastUpdated: number;
+	    name: string;
+	    readResults: Record<string, any>;
+	
+	    static createFrom(source: any = {}) {
+	        return new Contract(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.abi = this.convertValues(source["abi"], Abi);
+	        this.address = this.convertValues(source["address"], base.Address);
+	        this.date = source["date"];
+	        this.errorCount = source["errorCount"];
+	        this.lastError = source["lastError"];
+	        this.lastUpdated = source["lastUpdated"];
+	        this.name = source["name"];
+	        this.readResults = source["readResults"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
 	export class Log {
 	    address: base.Address;
 	    articulatedLog?: Function;
@@ -780,6 +1018,7 @@ export namespace types {
 	    activeChain: string;
 	    activePeriod: string;
 	    activeAddress: string;
+	    activeContract: string;
 	    lastView: string;
 	    lastFacetMap: Record<string, string>;
 	
@@ -793,6 +1032,7 @@ export namespace types {
 	        this.activeChain = source["activeChain"];
 	        this.activePeriod = source["activePeriod"];
 	        this.activeAddress = source["activeAddress"];
+	        this.activeContract = source["activeContract"];
 	        this.lastView = source["lastView"];
 	        this.lastFacetMap = source["lastFacetMap"];
 	    }
@@ -1291,6 +1531,131 @@ export namespace types {
 	        this.type = source["type"];
 	        this.value = this.convertValues(source["value"], null);
 	        this.statements = this.convertValues(source["statements"], Statement);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Transfer {
+	    // Go type: base
+	    amountIn?: any;
+	    // Go type: base
+	    amountOut?: any;
+	    asset: base.Address;
+	    blockNumber: number;
+	    decimals: number;
+	    // Go type: base
+	    gasOut?: any;
+	    holder: base.Address;
+	    // Go type: base
+	    internalIn?: any;
+	    // Go type: base
+	    internalOut?: any;
+	    logIndex: number;
+	    // Go type: base
+	    minerBaseRewardIn?: any;
+	    // Go type: base
+	    minerNephewRewardIn?: any;
+	    // Go type: base
+	    minerTxFeeIn?: any;
+	    // Go type: base
+	    minerUncleRewardIn?: any;
+	    // Go type: base
+	    prefundIn?: any;
+	    recipient: base.Address;
+	    // Go type: base
+	    selfDestructIn?: any;
+	    // Go type: base
+	    selfDestructOut?: any;
+	    sender: base.Address;
+	    transactionIndex: number;
+	    log?: Log;
+	    transaction?: Transaction;
+	
+	    static createFrom(source: any = {}) {
+	        return new Transfer(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.amountIn = this.convertValues(source["amountIn"], null);
+	        this.amountOut = this.convertValues(source["amountOut"], null);
+	        this.asset = this.convertValues(source["asset"], base.Address);
+	        this.blockNumber = source["blockNumber"];
+	        this.decimals = source["decimals"];
+	        this.gasOut = this.convertValues(source["gasOut"], null);
+	        this.holder = this.convertValues(source["holder"], base.Address);
+	        this.internalIn = this.convertValues(source["internalIn"], null);
+	        this.internalOut = this.convertValues(source["internalOut"], null);
+	        this.logIndex = source["logIndex"];
+	        this.minerBaseRewardIn = this.convertValues(source["minerBaseRewardIn"], null);
+	        this.minerNephewRewardIn = this.convertValues(source["minerNephewRewardIn"], null);
+	        this.minerTxFeeIn = this.convertValues(source["minerTxFeeIn"], null);
+	        this.minerUncleRewardIn = this.convertValues(source["minerUncleRewardIn"], null);
+	        this.prefundIn = this.convertValues(source["prefundIn"], null);
+	        this.recipient = this.convertValues(source["recipient"], base.Address);
+	        this.selfDestructIn = this.convertValues(source["selfDestructIn"], null);
+	        this.selfDestructOut = this.convertValues(source["selfDestructOut"], null);
+	        this.sender = this.convertValues(source["sender"], base.Address);
+	        this.transactionIndex = source["transactionIndex"];
+	        this.log = this.convertValues(source["log"], Log);
+	        this.transaction = this.convertValues(source["transaction"], Transaction);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Withdrawal {
+	    address: base.Address;
+	    // Go type: base
+	    amount: any;
+	    blockNumber: number;
+	    index: number;
+	    timestamp: number;
+	    validatorIndex: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Withdrawal(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.address = this.convertValues(source["address"], base.Address);
+	        this.amount = this.convertValues(source["amount"], null);
+	        this.blockNumber = source["blockNumber"];
+	        this.index = source["index"];
+	        this.timestamp = source["timestamp"];
+	        this.validatorIndex = source["validatorIndex"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

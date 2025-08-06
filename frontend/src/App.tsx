@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { NodeStatus, ProjectSelectionModal, getBarWidth } from '@components';
-import {
-  PeriodProvider,
-  ViewContextProvider,
-  WalletConnectProvider,
-} from '@contexts';
+import { ViewContextProvider, WalletConnectProvider } from '@contexts';
 import {
   useActiveProject,
   useAppHealth,
@@ -91,7 +87,7 @@ export const App = () => {
     setShowProjectModal(false);
   });
 
-  const { ready } = useAppNavigation();
+  const { ready, isWizard } = useAppNavigation();
   const { menuCollapsed, helpCollapsed } = usePreferences();
 
   useAppHotkeys();
@@ -103,9 +99,7 @@ export const App = () => {
   };
 
   const handleProjectModalCancel = () => {
-    if (hasActiveProject) {
-      setShowProjectModal(false);
-    }
+    setShowProjectModal(false);
   };
 
   if (!ready) return <div>Not ready</div>;
@@ -140,14 +134,12 @@ export const App = () => {
             navbar={navbar}
             aside={aside}
           >
-            <PeriodProvider>
-              <Header />
-              <MenuBar />
-              <ViewContextProvider>
-                <MainView />
-              </ViewContextProvider>
-              <HelpBar />
-            </PeriodProvider>
+            <Header />
+            <MenuBar disabled={isWizard} />
+            <ViewContextProvider>
+              <MainView />
+            </ViewContextProvider>
+            <HelpBar />
             <div
               style={{
                 position: 'absolute',
@@ -162,7 +154,7 @@ export const App = () => {
           </AppShell>
           <WalletConnectModalSign
             projectId={
-              import.meta.env.VITE_WALLETCONNECT_PROJECT_ID ||
+              (import.meta.env.VITE_WALLETCONNECT_PROJECT_ID as string) ||
               (() => {
                 Log(
                   'ERROR: VITE_WALLETCONNECT_PROJECT_ID not set in environment variables',

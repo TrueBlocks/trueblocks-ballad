@@ -69,10 +69,7 @@ export const Projects = () => {
       // Reset form and hide create form
       form.reset();
       setShowCreateForm(false);
-
-      Log(`Created new project: ${values.name}`);
     } catch (err) {
-      Log(`Error creating project: ${err}`);
       setError(`Failed to create project: ${err}`);
     } finally {
       setCreating(false);
@@ -86,10 +83,7 @@ export const Projects = () => {
 
       const targetView = lastView || '/';
       navigate(targetView);
-
-      Log(`Switched to project: ${projectId}`);
     } catch (err) {
-      Log(`Error switching projects: ${err}`);
       setError(`Failed to switch to project: ${err}`);
     }
   };

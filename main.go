@@ -16,7 +16,9 @@ import (
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/preferences"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/project"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/types/contracts"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/types/exports"
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/types/names"
 	"github.com/wailsapp/wails/v2"
 	wLogger "github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -48,6 +50,8 @@ func main() {
 			a,
 			&project.Project{},
 			&exports.ExportsCollection{},
+			&names.NamesCollection{},
+			&contracts.ContractsCollection{},
 		},
 		EnumBind: []interface{}{
 			msgs.AllMessages,

@@ -1,0 +1,36 @@
+[settings]
+class = "Names"
+doc_group = "001-Route"
+doc_descr = "an association between a human-readable name and an address used throughout TrueBlocks"
+doc_route = "400-names"
+attributes = ""
+produced_by = "names"
+disable_go = false
+
+[[facets]]
+name = "All"
+store = "Names"
+viewType = ""
+
+[[facets]]
+name = "Custom"
+store = "Names"
+cruds = ["delete", "undelete", "remove", "update", "autoname"]
+viewType = ""
+
+[[facets]]
+name = "Prefund"
+store = "Names"
+viewType = ""
+attributes = "dividerBefore"
+
+[[facets]]
+name = "Regular"
+store = "Names"
+viewType = ""
+
+[[facets]]
+name = "Baddress"
+store = "Names"
+viewType = ""
+

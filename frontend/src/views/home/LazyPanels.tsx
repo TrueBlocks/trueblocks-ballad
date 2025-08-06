@@ -7,6 +7,12 @@ export const LazyProjectsPanel = lazy(() =>
   })),
 );
 
+export const LazyNamesPanel = lazy(() =>
+  import('./panels/NamesPanel').then((module) => ({
+    default: module.NamesPanel,
+  })),
+);
+
 export const LazyExportsPanel = lazy(() =>
   import('./panels/ExportsPanel').then((module) => ({
     default: module.ExportsPanel,

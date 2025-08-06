@@ -26,9 +26,15 @@ import (
 // EXISTING_CODE
 
 type Asset = sdk.Asset
-type Name = sdk.Name
-type Statement = sdk.Statement
 type Balance = sdk.Balance
+type Log = sdk.Log
+type Receipt = sdk.Receipt
+type Statement = sdk.Statement
+type Trace = sdk.Trace
+type Transaction = sdk.Transaction
+type Transfer = sdk.Transfer
+type Withdrawal = sdk.Withdrawal
+type Name = sdk.Name
 
 var (
 	assetsStore   = make(map[string]*store.Store[Asset])
@@ -37,11 +43,29 @@ var (
 	balancesStore   = make(map[string]*store.Store[Balance])
 	balancesStoreMu sync.Mutex
 
-	namesStore   = make(map[string]*store.Store[Name])
-	namesStoreMu sync.Mutex
+	logsStore   = make(map[string]*store.Store[Log])
+	logsStoreMu sync.Mutex
+
+	receiptsStore   = make(map[string]*store.Store[Receipt])
+	receiptsStoreMu sync.Mutex
 
 	statementsStore   = make(map[string]*store.Store[Statement])
 	statementsStoreMu sync.Mutex
+
+	tracesStore   = make(map[string]*store.Store[Trace])
+	tracesStoreMu sync.Mutex
+
+	transactionsStore   = make(map[string]*store.Store[Transaction])
+	transactionsStoreMu sync.Mutex
+
+	transfersStore   = make(map[string]*store.Store[Transfer])
+	transfersStoreMu sync.Mutex
+
+	withdrawalsStore   = make(map[string]*store.Store[Withdrawal])
+	withdrawalsStoreMu sync.Mutex
+
+	namesStore   = make(map[string]*store.Store[Name])
+	namesStoreMu sync.Mutex
 )
 
 func (c *ExportsCollection) getAssetsStore(payload *types.Payload, facet types.DataFacet) *store.Store[Asset] {
@@ -99,9 +123,9 @@ func (c *ExportsCollection) getBalancesStore(payload *types.Payload, facet types
 	storeKey := getStoreKey(chain, address)
 	theStore := balancesStore[storeKey]
 	if theStore == nil {
-		// Create a store that doesn't query external data - it gets fed from statements
 		queryFunc := func(ctx *output.RenderCtx) error {
-			// This store doesn't fetch external data - it gets populated by the statement observer
+			// EXISTING_CODE
+			// EXISTING_CODE
 			return nil
 		}
 
@@ -113,7 +137,8 @@ func (c *ExportsCollection) getBalancesStore(payload *types.Payload, facet types
 		}
 
 		mappingFunc := func(item *Balance) (key interface{}, includeInMap bool) {
-			// Each balance is its own record, no need for mapping/grouping
+			// EXISTING_CODE
+			// EXISTING_CODE
 			return nil, false
 		}
 
@@ -135,48 +160,94 @@ func (c *ExportsCollection) getBalancesStore(payload *types.Payload, facet types
 	return theStore
 }
 
-func (c *ExportsCollection) getNamesStore(payload *types.Payload, facet types.DataFacet) *store.Store[Name] {
-	namesStoreMu.Lock()
-	defer namesStoreMu.Unlock()
+func (c *ExportsCollection) getLogsStore(payload *types.Payload, facet types.DataFacet) *store.Store[Log] {
+	logsStoreMu.Lock()
+	defer logsStoreMu.Unlock()
 
 	chain := payload.Chain
 	address := payload.Address
 	storeKey := getStoreKey(chain, address)
-	theStore := namesStore[storeKey]
+	theStore := logsStore[storeKey]
 	if theStore == nil {
 		queryFunc := func(ctx *output.RenderCtx) error {
 			// EXISTING_CODE
-			namesOpts := sdk.NamesOptions{
-				Globals:   sdk.Globals{Verbose: true, Chain: chain},
-				RenderCtx: ctx,
-				Terms:     []string{address},
+			exportOpts := sdk.ExportOptions{
+				Globals:    sdk.Globals{Cache: true, Verbose: true, Chain: chain},
+				RenderCtx:  ctx,
+				Addrs:      []string{address},
+				Articulate: true,
 			}
-			if _, _, err := namesOpts.Names(); err != nil {
-				wrappedErr := types.NewSDKError("exports", ExportsAssets, "fetch", err)
-				logging.LogBackend(fmt.Sprintf("Exports names SDK query error: %v", wrappedErr))
+			if _, _, err := exportOpts.ExportLogs(); err != nil {
+				wrappedErr := types.NewSDKError("exports", ExportsLogs, "fetch", err)
+				logging.LogBackend(fmt.Sprintf("Exports logs SDK query error: %v", wrappedErr))
 				return wrappedErr
 			}
 			// EXISTING_CODE
 			return nil
 		}
 
-		processFunc := func(item interface{}) *Name {
-			if it, ok := item.(*Name); ok {
+		processFunc := func(item interface{}) *Log {
+			if it, ok := item.(*Log); ok {
 				return it
 			}
 			return nil
 		}
 
-		mappingFunc := func(item *Name) (key interface{}, includeInMap bool) {
+		mappingFunc := func(item *Log) (key interface{}, includeInMap bool) {
 			// EXISTING_CODE
-			// Use address as key for quick lookups
-			return item.Address.Hex(), true
 			// EXISTING_CODE
+			return nil, false
 		}
 
 		storeName := c.GetStoreName(facet, chain, address)
 		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
-		namesStore[storeKey] = theStore
+		logsStore[storeKey] = theStore
+	}
+
+	return theStore
+}
+
+func (c *ExportsCollection) getReceiptsStore(payload *types.Payload, facet types.DataFacet) *store.Store[Receipt] {
+	receiptsStoreMu.Lock()
+	defer receiptsStoreMu.Unlock()
+
+	chain := payload.Chain
+	address := payload.Address
+	storeKey := getStoreKey(chain, address)
+	theStore := receiptsStore[storeKey]
+	if theStore == nil {
+		queryFunc := func(ctx *output.RenderCtx) error {
+			// EXISTING_CODE
+			exportOpts := sdk.ExportOptions{
+				Globals:   sdk.Globals{Cache: true, Verbose: true, Chain: chain},
+				RenderCtx: ctx,
+				Addrs:     []string{address},
+			}
+			if _, _, err := exportOpts.ExportReceipts(); err != nil {
+				wrappedErr := types.NewSDKError("exports", ExportsReceipts, "fetch", err)
+				logging.LogBackend(fmt.Sprintf("Exports receipts SDK query error: %v", wrappedErr))
+				return wrappedErr
+			}
+			// EXISTING_CODE
+			return nil
+		}
+
+		processFunc := func(item interface{}) *Receipt {
+			if it, ok := item.(*Receipt); ok {
+				return it
+			}
+			return nil
+		}
+
+		mappingFunc := func(item *Receipt) (key interface{}, includeInMap bool) {
+			// EXISTING_CODE
+			// EXISTING_CODE
+			return nil, false
+		}
+
+		storeName := c.GetStoreName(facet, chain, address)
+		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
+		receiptsStore[storeKey] = theStore
 	}
 
 	return theStore
@@ -229,15 +300,259 @@ func (c *ExportsCollection) getStatementsStore(payload *types.Payload, facet typ
 	return theStore
 }
 
+func (c *ExportsCollection) getTracesStore(payload *types.Payload, facet types.DataFacet) *store.Store[Trace] {
+	tracesStoreMu.Lock()
+	defer tracesStoreMu.Unlock()
+
+	chain := payload.Chain
+	address := payload.Address
+	storeKey := getStoreKey(chain, address)
+	theStore := tracesStore[storeKey]
+	if theStore == nil {
+		queryFunc := func(ctx *output.RenderCtx) error {
+			// EXISTING_CODE
+			exportOpts := sdk.ExportOptions{
+				Globals:   sdk.Globals{Cache: true, Verbose: true, Chain: chain},
+				RenderCtx: ctx,
+				Addrs:     []string{address},
+			}
+			if _, _, err := exportOpts.ExportTraces(); err != nil {
+				wrappedErr := types.NewSDKError("exports", ExportsTraces, "fetch", err)
+				logging.LogBackend(fmt.Sprintf("Exports traces SDK query error: %v", wrappedErr))
+				return wrappedErr
+			}
+			// EXISTING_CODE
+			return nil
+		}
+
+		processFunc := func(item interface{}) *Trace {
+			if it, ok := item.(*Trace); ok {
+				return it
+			}
+			return nil
+		}
+
+		mappingFunc := func(item *Trace) (key interface{}, includeInMap bool) {
+			// EXISTING_CODE
+			// EXISTING_CODE
+			return nil, false
+		}
+
+		storeName := c.GetStoreName(facet, chain, address)
+		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
+		tracesStore[storeKey] = theStore
+	}
+
+	return theStore
+}
+
+func (c *ExportsCollection) getTransactionsStore(payload *types.Payload, facet types.DataFacet) *store.Store[Transaction] {
+	transactionsStoreMu.Lock()
+	defer transactionsStoreMu.Unlock()
+
+	chain := payload.Chain
+	address := payload.Address
+	storeKey := getStoreKey(chain, address)
+	theStore := transactionsStore[storeKey]
+	if theStore == nil {
+		queryFunc := func(ctx *output.RenderCtx) error {
+			// EXISTING_CODE
+			exportOpts := sdk.ExportOptions{
+				Globals:   sdk.Globals{Cache: true, Verbose: true, Chain: chain},
+				RenderCtx: ctx,
+				Addrs:     []string{address},
+			}
+			if _, _, err := exportOpts.Export(); err != nil {
+				wrappedErr := types.NewSDKError("exports", ExportsTransactions, "fetch", err)
+				logging.LogBackend(fmt.Sprintf("Exports transactions SDK query error: %v", wrappedErr))
+				return wrappedErr
+			}
+			// EXISTING_CODE
+			return nil
+		}
+
+		processFunc := func(item interface{}) *Transaction {
+			if it, ok := item.(*Transaction); ok {
+				return it
+			}
+			return nil
+		}
+
+		mappingFunc := func(item *Transaction) (key interface{}, includeInMap bool) {
+			// EXISTING_CODE
+			// EXISTING_CODE
+			return nil, false
+		}
+
+		storeName := c.GetStoreName(facet, chain, address)
+		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
+		transactionsStore[storeKey] = theStore
+	}
+
+	return theStore
+}
+
+func (c *ExportsCollection) getTransfersStore(payload *types.Payload, facet types.DataFacet) *store.Store[Transfer] {
+	transfersStoreMu.Lock()
+	defer transfersStoreMu.Unlock()
+
+	chain := payload.Chain
+	address := payload.Address
+	storeKey := getStoreKey(chain, address)
+	theStore := transfersStore[storeKey]
+	if theStore == nil {
+		queryFunc := func(ctx *output.RenderCtx) error {
+			// EXISTING_CODE
+			exportOpts := sdk.ExportOptions{
+				Globals:    sdk.Globals{Cache: true, Verbose: true, Chain: chain},
+				RenderCtx:  ctx,
+				Addrs:      []string{address},
+				Accounting: true, // Enable accounting for transfers
+			}
+			if _, _, err := exportOpts.ExportTransfers(); err != nil {
+				wrappedErr := types.NewSDKError("exports", ExportsTransfers, "fetch", err)
+				logging.LogBackend(fmt.Sprintf("Exports transfers SDK query error: %v", wrappedErr))
+				return wrappedErr
+			}
+			// EXISTING_CODE
+			return nil
+		}
+
+		processFunc := func(item interface{}) *Transfer {
+			if it, ok := item.(*Transfer); ok {
+				return it
+			}
+			return nil
+		}
+
+		mappingFunc := func(item *Transfer) (key interface{}, includeInMap bool) {
+			// EXISTING_CODE
+			// EXISTING_CODE
+			return nil, false
+		}
+
+		storeName := c.GetStoreName(facet, chain, address)
+		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
+		transfersStore[storeKey] = theStore
+	}
+
+	return theStore
+}
+
+func (c *ExportsCollection) getWithdrawalsStore(payload *types.Payload, facet types.DataFacet) *store.Store[Withdrawal] {
+	withdrawalsStoreMu.Lock()
+	defer withdrawalsStoreMu.Unlock()
+
+	chain := payload.Chain
+	address := payload.Address
+	storeKey := getStoreKey(chain, address)
+	theStore := withdrawalsStore[storeKey]
+	if theStore == nil {
+		queryFunc := func(ctx *output.RenderCtx) error {
+			// EXISTING_CODE
+			exportOpts := sdk.ExportOptions{
+				Globals:   sdk.Globals{Cache: true, Verbose: true, Chain: chain},
+				RenderCtx: ctx,
+				Addrs:     []string{address},
+			}
+			if _, _, err := exportOpts.ExportWithdrawals(); err != nil {
+				wrappedErr := types.NewSDKError("exports", ExportsTransfers, "fetch", err)
+				logging.LogBackend(fmt.Sprintf("Exports transfers SDK query error: %v", wrappedErr))
+				return wrappedErr
+			}
+			// EXISTING_CODE
+			return nil
+		}
+
+		processFunc := func(item interface{}) *Withdrawal {
+			if it, ok := item.(*Withdrawal); ok {
+				return it
+			}
+			return nil
+		}
+
+		mappingFunc := func(item *Withdrawal) (key interface{}, includeInMap bool) {
+			// EXISTING_CODE
+			// EXISTING_CODE
+			return nil, false
+		}
+
+		storeName := c.GetStoreName(facet, chain, address)
+		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
+		withdrawalsStore[storeKey] = theStore
+	}
+
+	return theStore
+}
+
+func (c *ExportsCollection) getNamesStore(payload *types.Payload, facet types.DataFacet) *store.Store[Name] {
+	namesStoreMu.Lock()
+	defer namesStoreMu.Unlock()
+
+	chain := payload.Chain
+	address := payload.Address
+	storeKey := getStoreKey(chain, address)
+	theStore := namesStore[storeKey]
+	if theStore == nil {
+		queryFunc := func(ctx *output.RenderCtx) error {
+			// EXISTING_CODE
+			namesOpts := sdk.NamesOptions{
+				Globals:   sdk.Globals{Verbose: true, Chain: chain},
+				RenderCtx: ctx,
+				Terms:     []string{address},
+			}
+			if _, _, err := namesOpts.Names(); err != nil {
+				wrappedErr := types.NewSDKError("exports", ExportsAssets, "fetch", err)
+				logging.LogBackend(fmt.Sprintf("Exports names SDK query error: %v", wrappedErr))
+				return wrappedErr
+			}
+			// EXISTING_CODE
+			return nil
+		}
+
+		processFunc := func(item interface{}) *Name {
+			if it, ok := item.(*Name); ok {
+				return it
+			}
+			return nil
+		}
+
+		mappingFunc := func(item *Name) (key interface{}, includeInMap bool) {
+			// EXISTING_CODE
+			// Use address as key for quick lookups
+			return item.Address.Hex(), true
+			// EXISTING_CODE
+		}
+
+		storeName := c.GetStoreName(facet, chain, address)
+		theStore = store.NewStore(storeName, queryFunc, processFunc, mappingFunc)
+		namesStore[storeKey] = theStore
+	}
+
+	return theStore
+}
+
 func (c *ExportsCollection) GetStoreName(dataFacet types.DataFacet, chain, address string) string {
 	name := ""
 	switch dataFacet {
 	case ExportsStatements:
 		name = "exports-statements"
 	case ExportsBalances:
-		name = "exports-balances" // Generated from statements
+		name = "exports-balances"
+	case ExportsTransfers:
+		name = "exports-transfers"
+	case ExportsTransactions:
+		name = "exports-transactions"
+	case ExportsWithdrawals:
+		name = "exports-withdrawals"
 	case ExportsAssets:
 		name = "exports-assets"
+	case ExportsLogs:
+		name = "exports-logs"
+	case ExportsTraces:
+		name = "exports-traces"
+	case ExportsReceipts:
+		name = "exports-receipts"
 	default:
 		return ""
 	}
@@ -285,10 +600,16 @@ func GetExportsCollection(payload *types.Payload) *ExportsCollection {
 // EXISTING_CODE
 func GetExportsCount2(dataFacet string, payload *types.Payload) (int, error) {
 	switch types.DataFacet(dataFacet) {
+	case ExportsTransactions:
+		return getExportsTransactionsCount(payload)
 	case ExportsStatements:
 		return getExportsStatementsCount(payload)
+	case ExportsTransfers:
+		return getExportsTransfersCount(payload)
 	case ExportsBalances:
 		return getExportsBalancesCount(payload)
+	case ExportsWithdrawals:
+		return getExportsWithdrawalsCount(payload)
 	case ExportsAssets:
 		return getExportsAssetsCount(payload)
 	default:
@@ -314,7 +635,15 @@ func getExportsStatementsCount(payload *types.Payload) (int, error) {
 	return getExportsTransactionsCount(payload)
 }
 
+func getExportsTransfersCount(payload *types.Payload) (int, error) {
+	return getExportsTransactionsCount(payload)
+}
+
 func getExportsBalancesCount(payload *types.Payload) (int, error) {
+	return getExportsTransactionsCount(payload)
+}
+
+func getExportsWithdrawalsCount(payload *types.Payload) (int, error) {
 	return getExportsTransactionsCount(payload)
 }
 
@@ -327,24 +656,41 @@ func ResetExportsStore(payload *types.Payload, dataFacet types.DataFacet) {
 	storeKey := getStoreKey(payload.Chain, payload.Address)
 
 	switch dataFacet {
+	case ExportsTransactions:
+		transactionsStoreMu.Lock()
+		if store, exists := transactionsStore[storeKey]; exists {
+			store.Reset()
+		}
+		transactionsStoreMu.Unlock()
 	case ExportsStatements:
 		statementsStoreMu.Lock()
 		if store, exists := statementsStore[storeKey]; exists {
 			store.Reset()
 		}
 		statementsStoreMu.Unlock()
-		// Also reset balances since they depend on statements
 		balancesStoreMu.Lock()
 		if store, exists := balancesStore[storeKey]; exists {
 			store.Reset()
 		}
 		balancesStoreMu.Unlock()
+	case ExportsTransfers:
+		transfersStoreMu.Lock()
+		if store, exists := transfersStore[storeKey]; exists {
+			store.Reset()
+		}
+		transfersStoreMu.Unlock()
 	case ExportsBalances:
 		balancesStoreMu.Lock()
 		if store, exists := balancesStore[storeKey]; exists {
 			store.Reset()
 		}
 		balancesStoreMu.Unlock()
+	case ExportsWithdrawals:
+		withdrawalsStoreMu.Lock()
+		if store, exists := withdrawalsStore[storeKey]; exists {
+			store.Reset()
+		}
+		withdrawalsStoreMu.Unlock()
 	case ExportsAssets:
 		assetsStoreMu.Lock()
 		if store, exists := assetsStore[storeKey]; exists {
@@ -366,13 +712,25 @@ func ClearExportsStores(payload *types.Payload) {
 	address := payload.Address
 	storeKey := getStoreKey(chain, address)
 
+	transactionsStoreMu.Lock()
+	delete(transactionsStore, storeKey)
+	transactionsStoreMu.Unlock()
+
 	statementsStoreMu.Lock()
 	delete(statementsStore, storeKey)
 	statementsStoreMu.Unlock()
 
+	transfersStoreMu.Lock()
+	delete(transfersStore, storeKey)
+	transfersStoreMu.Unlock()
+
 	balancesStoreMu.Lock()
 	delete(balancesStore, storeKey)
 	balancesStoreMu.Unlock()
+
+	withdrawalsStoreMu.Lock()
+	delete(withdrawalsStore, storeKey)
+	withdrawalsStoreMu.Unlock()
 
 	namesStoreMu.Lock()
 	delete(namesStore, storeKey)
@@ -385,13 +743,25 @@ func ClearExportsStores(payload *types.Payload) {
 
 // ClearAllExportsStores clears all cached stores (useful for global reset)
 func ClearAllExportsStores() {
+	transactionsStoreMu.Lock()
+	transactionsStore = make(map[string]*store.Store[Transaction])
+	transactionsStoreMu.Unlock()
+
 	statementsStoreMu.Lock()
 	statementsStore = make(map[string]*store.Store[Statement])
 	statementsStoreMu.Unlock()
 
+	transfersStoreMu.Lock()
+	transfersStore = make(map[string]*store.Store[Transfer])
+	transfersStoreMu.Unlock()
+
 	balancesStoreMu.Lock()
 	balancesStore = make(map[string]*store.Store[Balance])
 	balancesStoreMu.Unlock()
+
+	withdrawalsStoreMu.Lock()
+	withdrawalsStore = make(map[string]*store.Store[Withdrawal])
+	withdrawalsStoreMu.Unlock()
 
 	namesStoreMu.Lock()
 	namesStore = make(map[string]*store.Store[Name])

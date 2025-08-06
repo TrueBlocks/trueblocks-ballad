@@ -11,6 +11,8 @@ export const useAppNavigation = () => {
   const hasRedirected = useRef(false);
   const { lastView, setLastView, loading } = useActiveProject();
 
+  const isWizard = location.startsWith('/wizard');
+
   // Handle initial redirect to lastView
   useEffect(() => {
     if (ready && !loading && location === '/' && !hasRedirected.current) {
@@ -30,5 +32,6 @@ export const useAppNavigation = () => {
     location,
     navigate,
     ready,
+    isWizard,
   };
 };

@@ -18,19 +18,21 @@ import (
 // ------------------------------------------------------------------------------------
 // Project represents a single project with its metadata and data.
 type Project struct {
-	mu            sync.RWMutex                 `json:"-"`
-	Version       string                       `json:"version"`
-	Name          string                       `json:"name"`
-	LastOpened    string                       `json:"last_opened"`
-	LastView      string                       `json:"lastView"`
-	LastFacetMap  map[string]string            `json:"lastFacetMap"`
-	Addresses     []base.Address               `json:"addresses"`
-	ActiveAddress base.Address                 `json:"activeAddress"`
-	Chains        []string                     `json:"chains"`
-	ActiveChain   string                       `json:"activeChain"`
-	ActivePeriod  string                       `json:"activePeriod"`
-	FilterStates  map[ViewStateKey]FilterState `json:"filterStates"`
-	Path          string                       `json:"-"`
+	mu             sync.RWMutex                 `json:"-"`
+	Version        string                       `json:"version"`
+	Name           string                       `json:"name"`
+	LastOpened     string                       `json:"last_opened"`
+	LastView       string                       `json:"lastView"`
+	LastFacetMap   map[string]string            `json:"lastFacetMap"`
+	Addresses      []base.Address               `json:"addresses"`
+	ActiveAddress  base.Address                 `json:"activeAddress"`
+	Chains         []string                     `json:"chains"`
+	ActiveChain    string                       `json:"activeChain"`
+	Contracts      []string                     `json:"contracts"`
+	ActiveContract string                       `json:"activeContract"`
+	ActivePeriod   string                       `json:"activePeriod"`
+	FilterStates   map[ViewStateKey]FilterState `json:"filterStates"`
+	Path           string                       `json:"-"`
 }
 
 // ------------------------------------------------------------------------------------
@@ -41,17 +43,19 @@ func NewProject(name string, activeAddress base.Address, chains []string) *Proje
 		addresses = append(addresses, activeAddress)
 	}
 	return &Project{
-		Version:       "1.0",
-		Name:          name,
-		LastOpened:    time.Now().Format(time.RFC3339),
-		LastView:      "",
-		LastFacetMap:  map[string]string{},
-		ActiveAddress: activeAddress,
-		Addresses:     addresses,
-		ActiveChain:   chains[0],
-		ActivePeriod:  "blockly", // Default to raw data
-		Chains:        chains,
-		FilterStates:  make(map[ViewStateKey]FilterState),
+		Version:        "1.0",
+		Name:           name,
+		LastOpened:     time.Now().Format(time.RFC3339),
+		LastView:       "",
+		LastFacetMap:   map[string]string{},
+		ActiveAddress:  activeAddress,
+		Addresses:      addresses,
+		ActiveChain:    chains[0],
+		Chains:         chains,
+		ActiveContract: "",
+		Contracts:      []string{},
+		ActivePeriod:   "blockly",
+		FilterStates:   make(map[ViewStateKey]FilterState),
 	}
 }
 
@@ -235,6 +239,75 @@ func (p *Project) SetActiveChain(chain string) error {
 }
 
 // ------------------------------------------------------------------------------------
+// GetContracts returns all contracts in the project
+func (p *Project) GetContracts() []string {
+	return p.Contracts
+}
+
+// ------------------------------------------------------------------------------------
+// GetActiveContract returns the currently selected contract
+func (p *Project) GetActiveContract() string {
+	return p.ActiveContract
+}
+
+// ------------------------------------------------------------------------------------
+// SetActiveContract sets the currently selected contract (must be in project or empty)
+func (p *Project) SetActiveContract(contract string) error {
+	if contract == "" {
+		if p.ActiveContract != contract {
+			p.ActiveContract = contract
+			return p.Save()
+		}
+		return nil
+	}
+
+	found := false
+	for _, existingContract := range p.Contracts {
+		if existingContract == contract {
+			found = true
+			break
+		}
+	}
+
+	needsSave := false
+	if !found {
+		p.Contracts = append(p.Contracts, contract)
+		needsSave = true
+	}
+
+	if p.ActiveContract != contract {
+		p.ActiveContract = contract
+		needsSave = true
+	}
+
+	if needsSave {
+		return p.Save()
+	}
+	return nil
+}
+
+// ------------------------------------------------------------------------------------
+// AddContract adds a new contract to the project
+func (p *Project) AddContract(contract string) error {
+	return p.SetActiveContract(contract)
+}
+
+// ------------------------------------------------------------------------------------
+// RemoveContract removes a contract from the project
+func (p *Project) RemoveContract(contract string) error {
+	for i, existingContract := range p.Contracts {
+		if existingContract == contract {
+			p.Contracts = append(p.Contracts[:i], p.Contracts[i+1:]...)
+			if p.ActiveContract == contract {
+				p.ActiveContract = ""
+			}
+			return p.Save()
+		}
+	}
+	return fmt.Errorf("contract %s not found in project", contract)
+}
+
+// ------------------------------------------------------------------------------------
 // GetActivePeriod returns the currently selected period
 func (p *Project) GetActivePeriod() string {
 	if p.ActivePeriod == "" {
@@ -254,13 +327,45 @@ func (p *Project) SetActivePeriod(period string) error {
 }
 
 // ------------------------------------------------------------------------------------
-// SetLastView updates the last visited view/route and saves immediately (session state)
-func (p *Project) SetLastView(view string) error {
-	if p.LastView != view {
-		p.LastView = strings.Trim(view, "/")
+// GetFilterState retrieves filter state for a given key
+func (p *Project) GetFilterState(key ViewStateKey) (FilterState, bool) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	state, exists := p.FilterStates[key]
+	return state, exists
+}
+
+// ------------------------------------------------------------------------------------
+// SetFilterState sets filter state for a given key and saves immediately (session state)
+func (p *Project) SetFilterState(key ViewStateKey, state FilterState) error {
+	if p.FilterStates == nil {
+		p.FilterStates = make(map[ViewStateKey]FilterState)
+	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.FilterStates[key] = state
+	return p.Save()
+}
+
+// ------------------------------------------------------------------------------------
+// ClearFilterState removes view state for a given key and saves immediately (session state)
+func (p *Project) ClearFilterState(key ViewStateKey) error {
+	if p.FilterStates != nil {
+		p.mu.Lock()
+		defer p.mu.Unlock()
+		delete(p.FilterStates, key)
 		return p.Save()
 	}
 	return nil
+}
+
+// ------------------------------------------------------------------------------------
+// ClearAllFilterStates removes all filter states and saves immediately (session state)
+func (p *Project) ClearAllFilterStates() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.FilterStates = make(map[ViewStateKey]FilterState)
+	return p.Save()
 }
 
 // ------------------------------------------------------------------------------------
@@ -269,6 +374,16 @@ func (p *Project) GetLastView() string {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.LastView
+}
+
+// ------------------------------------------------------------------------------------
+// SetLastView updates the last visited view/route and saves immediately (session state)
+func (p *Project) SetLastView(view string) error {
+	if p.LastView != view {
+		p.LastView = strings.Trim(view, "/")
+		return p.Save()
+	}
+	return nil
 }
 
 // ------------------------------------------------------------------------------------

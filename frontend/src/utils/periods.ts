@@ -1,3 +1,4 @@
+// TODO: BOGUS - THIS SHOULD BE IN THE BACKEND
 // Period constants that match the Go string constants
 export const Period = {
   Blockly: 'blockly', // Default - no aggregation, raw data

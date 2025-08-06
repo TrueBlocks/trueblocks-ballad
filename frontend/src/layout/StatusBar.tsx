@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { useEvent } from '@hooks';
-import { ActionIcon } from '@mantine/core';
+import { useEvent, useIconSets } from '@hooks';
 import { msgs } from '@models';
-import { BiCopy } from 'react-icons/bi';
+import { copyToClipboard } from '@utils';
 
 import './StatusBar.css';
 
@@ -12,12 +11,9 @@ export const StatusBar = () => {
   const [visible, setVisible] = useState(false);
   const [cn, setCn] = useState('okay');
 
-  const handleCopyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(status);
-    } catch (err) {
-      console.error('Failed to copy text to clipboard:', err);
-    }
+  const { Copy } = useIconSets();
+  const handleCopyError = async () => {
+    await copyToClipboard(status);
   };
 
   useEvent(msgs.EventType.STATUS, (message: string) => {
@@ -47,15 +43,21 @@ export const StatusBar = () => {
   return (
     <div className={cn}>
       {cn === 'error' && (
-        <ActionIcon
-          size="xs"
-          variant="subtle"
-          onClick={handleCopyToClipboard}
-          style={{ marginRight: '8px' }}
-          aria-label="Copy error message"
-        >
-          <BiCopy size={12} />
-        </ActionIcon>
+        <Copy
+          style={{
+            marginLeft: '8px',
+            cursor: 'pointer',
+            opacity: 0.7,
+            transition: 'opacity 0.2s',
+          }}
+          onClick={handleCopyError}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.7';
+          }}
+        />
       )}
       <span>{status}</span>
     </div>

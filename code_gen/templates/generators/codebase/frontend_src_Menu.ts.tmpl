@@ -1,0 +1,89 @@
+// Copyright 2016, 2026 The TrueBlocks Authors. All rights reserved.
+// Use of this source code is governed by a license that can
+// be found in the LICENSE file.
+/*
+ * Parts of this file were auto generated. Edit only those parts of
+ * the code inside of 'EXISTING_CODE' tags.
+ */
+import { SetInitialized } from '@app';
+import { DalleDress, Home, Khedra, Settings } from '@views';
+import {
+  {{ .Views }}
+} from '@views';
+import { Wizard } from '@wizards';
+
+export interface MenuItem {
+  label: string;
+  path: string;
+  position: 'top' | 'bottom' | 'hidden';
+  component?: React.ComponentType;
+  hotkey?: string;
+  altHotkey?: string;
+  type?: 'navigation' | 'dev' | 'toggle';
+  action?: () => void | Promise<void>;
+}
+
+export const MenuItems: MenuItem[] = [
+  {
+    label: 'Home',
+    path: '/',
+    position: 'top',
+    component: Home,
+    hotkey: 'mod+1',
+    altHotkey: 'alt+1',
+    type: 'navigation',
+  },
+{{- $n := 2 -}}
+{{- range .Structures }}
+{{- if and (ne .Class "") (not .DisableGo) }}
+  {
+    label: '{{ .Class }}',
+    path: '/{{ toLower .Class }}',
+    position: 'top',
+    component: {{ .Class }},
+    {{ hotkey $n }}
+    type: 'navigation',
+  },
+{{- $n = add $n 1 }}
+{{- end }}
+{{- end }}
+  {
+    label: 'DalleDress',
+    path: '/ballad',
+    position: 'top',
+    component: DalleDress,
+    {{ hotkey $n }}
+  {{- $n = add $n 1 }}
+    type: 'navigation',
+  },
+  {
+    label: 'Khedra',
+    path: '/khedra',
+    position: 'bottom',
+    component: Khedra,
+    {{ hotkey $n }}
+  {{- $n = add $n 1 }}
+    type: 'navigation',
+  },
+  {
+    label: 'Settings',
+    path: '/settings',
+    position: 'bottom',
+    component: Settings,
+    {{ hotkey $n }}
+  {{- $n = add $n 1 }}
+    type: 'navigation',
+  },
+  {
+    path: '/wizard',
+    label: 'Wizard',
+    position: 'hidden',
+    component: Wizard,
+    {{ hotkey $n }}
+  {{- $n = add $n 1 }}
+    type: 'dev',
+    action: async () => {
+      await SetInitialized(false);
+    },
+  },
+];

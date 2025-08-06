@@ -11,4 +11,6 @@ export { Khedra } from './Khedra';
 export * from './settings';
 
 export { Exports } from './exports';
+export { Names } from './names';
+export { Contracts } from './contracts';
 export { Projects } from './projects/Projects';
