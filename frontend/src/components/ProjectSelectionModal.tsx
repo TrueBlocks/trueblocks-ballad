@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { SaveProject } from '@app';
-import { Action, StatusIndicator } from '@components';
+import { AddAddressesToProject, SaveProject } from '@app';
+import { Action, AddressInput, StatusIndicator } from '@components';
 import { useViewContext } from '@contexts';
 import { useActiveProject, useIconSets } from '@hooks';
 import {
@@ -22,23 +22,25 @@ import { useLocation } from 'wouter';
 interface ProjectSelectionModalProps {
   opened: boolean;
   onProjectSelected: () => void;
+  onCancel?: () => void;
 }
 
-interface NewProjectForm {
+interface NewProjectForm extends Record<string, unknown> {
   name: string;
-  address: string;
+  addresses: string;
 }
 
 export const ProjectSelectionModal = ({
   opened,
   onProjectSelected,
+  onCancel,
 }: ProjectSelectionModalProps) => {
   const [loadingCreate, setLoadingCreate] = useState(false);
   const [loadingOpen, setLoadingOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { File, Add } = useIconSets();
   const { restoreProjectFilterStates } = useViewContext();
-  const { projects, lastView, newProject, openProjectFile } =
+  const { projects, lastView, newProject, openProjectFile, hasActiveProject } =
     useActiveProject();
   const [, navigate] = useLocation();
   const isMounted = useRef(true);
@@ -46,30 +48,12 @@ export const ProjectSelectionModal = ({
   const form = useForm<NewProjectForm>({
     initialValues: {
       name: '',
-      address: '',
+      addresses: '',
     },
     validate: {
       name: (value) => (!value ? 'Project name is required' : null),
-      address: (value) => {
-        if (!value) return 'Primary address is required';
-        // Allow .eth names or standard Ethereum addresses
-        if (value.endsWith('.eth')) {
-          // ENS names ending with .eth are valid - backend will resolve them
-          if (value.length < 5) {
-            // minimum: "a.eth" = 5 chars
-            return 'ENS name too short';
-          }
-          if (!/^[a-z0-9-]+\.eth$/i.test(value)) {
-            return 'Invalid ENS name format';
-          }
-          return null;
-        }
-        // Standard Ethereum address validation
-        if (!/^0x[a-fA-F0-9]{40}$/.test(value)) {
-          return 'Invalid Ethereum address format (use 0x... or .eth name)';
-        }
-        return null;
-      },
+      addresses: (value) =>
+        !value?.trim() ? 'At least one address is required' : null,
     },
   });
 
@@ -86,9 +70,10 @@ export const ProjectSelectionModal = ({
     setError(null);
 
     try {
-      await newProject(values.name, values.address);
+      await newProject(values.name, '');
+      await AddAddressesToProject(values.addresses);
 
-      // Immediately save the project after creation
+      // Immediately save the project after creation/updates
       await SaveProject();
 
       await restoreProjectFilterStates();
@@ -149,16 +134,17 @@ export const ProjectSelectionModal = ({
   };
 
   const isLoading = loadingCreate || loadingOpen;
+  const canCancel = hasActiveProject && !!onCancel;
 
   return (
     <Modal
       opened={opened}
-      onClose={() => {}} // Cannot be closed without selecting a project
+      onClose={canCancel ? (onCancel ?? (() => {})) : () => {}}
       centered
       size="lg"
-      withCloseButton={false}
-      closeOnClickOutside={false}
-      closeOnEscape={false}
+      withCloseButton={canCancel}
+      closeOnClickOutside={canCancel}
+      closeOnEscape={canCancel}
       overlayProps={{
         backgroundOpacity: 0.8,
         blur: 3,
@@ -167,11 +153,14 @@ export const ProjectSelectionModal = ({
       <Stack gap="xl">
         <div style={{ textAlign: 'center' }}>
           <Title order={2} mb="xs">
-            Select or Create a Project
+            {hasActiveProject
+              ? 'Select or Create a Project'
+              : 'Project Required'}
           </Title>
           <Text c="dimmed">
-            TrueBlocks requires an active project with at least one address to
-            continue
+            {hasActiveProject
+              ? 'Choose a different project or create a new one'
+              : 'TrueBlocks requires an active project with at least one address to continue'}
           </Text>
         </div>
 
@@ -198,13 +187,7 @@ export const ProjectSelectionModal = ({
                     required
                     {...form.getInputProps('name')}
                   />
-                  <TextInput
-                    label="Primary Address"
-                    placeholder="0x..."
-                    required
-                    {...form.getInputProps('address')}
-                    description="The main Ethereum address for this project"
-                  />
+                  <AddressInput form={form} fieldName="addresses" rows={4} />
                   <Button
                     type="submit"
                     loading={loadingCreate}

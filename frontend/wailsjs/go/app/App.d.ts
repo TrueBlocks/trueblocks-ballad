@@ -12,6 +12,8 @@ import {exports} from '../models';
 
 export function AddAddressToProject(arg1:string):Promise<void>;
 
+export function AddAddressesToProject(arg1:string):Promise<void>;
+
 export function BuildDalleDressForProject():Promise<Record<string, any>>;
 
 export function CancelAllFetches():Promise<number>;

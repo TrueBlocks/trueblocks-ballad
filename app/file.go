@@ -16,20 +16,13 @@ import (
 
 // FileNew opens the project selection dialog while keeping current project active
 func (a *App) FileNew(_ *menu.CallbackData) {
-	if err := a.fileNew(base.ZeroAddr); err != nil {
-		msgs.EmitError("File → New failed", err)
-		return
-	}
-	// activeProject := a.GetActiveProject()
+	msgs.EmitProjectModal("show_project_modal")
 	msgs.EmitStatus("new project dialog opened")
 }
 
 // FileOpen opens the project selection dialog while keeping current project active
 func (a *App) FileOpen(_ *menu.CallbackData) {
-	if err := a.ClearActiveProject(); err != nil {
-		return
-	}
-	msgs.EmitManager("show_project_modal")
+	msgs.EmitProjectModal("show_project_modal")
 	msgs.EmitStatus("project selection dialog opened")
 }
 

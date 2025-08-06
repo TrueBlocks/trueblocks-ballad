@@ -520,11 +520,6 @@ export namespace sdk {
 
 export namespace types {
 	
-	export enum DataFacet {
-	    STATEMENTS = "statements",
-	    BALANCES = "balances",
-	    ASSETS = "assets",
-	}
 	export enum LoadState {
 	    STALE = "stale",
 	    FETCHING = "fetching",
@@ -532,6 +527,11 @@ export namespace types {
 	    LOADED = "loaded",
 	    PENDING = "pending",
 	    ERROR = "error",
+	}
+	export enum DataFacet {
+	    STATEMENTS = "statements",
+	    BALANCES = "balances",
+	    ASSETS = "assets",
 	}
 	export class Parameter {
 	    components?: Parameter[];

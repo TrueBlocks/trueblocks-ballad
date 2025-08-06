@@ -6,6 +6,10 @@ export function AddAddressToProject(arg1) {
   return window['go']['app']['App']['AddAddressToProject'](arg1);
 }
 
+export function AddAddressesToProject(arg1) {
+  return window['go']['app']['App']['AddAddressesToProject'](arg1);
+}
+
 export function BuildDalleDressForProject() {
   return window['go']['app']['App']['BuildDalleDressForProject']();
 }

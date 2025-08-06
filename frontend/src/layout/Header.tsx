@@ -31,7 +31,7 @@ export const Header = () => {
         <Text size="xl" fw={700}>
           {appName}
         </Text>
-        <ProjectContextBar compact />
+        <ProjectContextBar />
         <Group justify="flex-end" align="center" gap="xs">
           <Action
             icon="DebugOn"

@@ -153,6 +153,8 @@ class ProjectStore {
     this.notify();
   };
 
+  private eventListenersSetup = false;
+
   initialize = async (): Promise<void> => {
     try {
       this.setState({ loading: true });
@@ -179,7 +181,10 @@ class ProjectStore {
         loading: false,
       });
 
-      this.setupEventListeners();
+      if (!this.eventListenersSetup) {
+        this.setupEventListeners();
+        this.eventListenersSetup = true;
+      }
     } catch (error) {
       Log('ERROR: Failed to load project data: ' + String(error));
       this.setState({ loading: false });
@@ -196,7 +201,23 @@ class ProjectStore {
       this.setState({ activePeriod: period });
     };
 
-    EventsOn('manager:change', handleProjectEvent);
+    const handleProjectCleared = () => {
+      this.setState({
+        lastProject: '',
+        activeAddress: '',
+        activeChain: '',
+        lastView: '/',
+      });
+      this.refreshProjects();
+    };
+
+    EventsOn('manager:change', (message: string) => {
+      if (message === 'active_project_cleared') {
+        handleProjectCleared();
+      } else {
+        handleProjectEvent();
+      }
+    });
     EventsOn('project:opened', handleProjectEvent);
     EventsOn('active_period_changed', handlePeriodChanged);
   };

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/msgs"
 
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
@@ -47,29 +48,56 @@ func (a *App) ConvertToAddress(addr string) (base.Address, bool) {
 }
 
 func (a *App) SetActiveAddress(addrStr string) error {
-	addr := base.HexToAddress(addrStr)
-	if active := a.GetActiveProject(); active != nil {
-		err := active.SetActiveAddress(addr)
-		if err == nil {
-			msgs.EmitManager("active_address_changed")
+	if addr, ok := a.ConvertToAddress(addrStr); ok {
+		if active := a.GetActiveProject(); active != nil {
+			err := active.SetActiveAddress(addr)
+			if err == nil {
+				msgs.EmitManager("active_address_changed")
+			}
+			return err
 		}
-		return err
+		return fmt.Errorf("no active project")
 	}
-	return fmt.Errorf("no active project")
+	return fmt.Errorf("invalid address: %s", addrStr)
 }
 
 func (a *App) AddAddressToProject(addrStr string) error {
-	addr := base.HexToAddress(addrStr)
-	if active := a.GetActiveProject(); active != nil {
-		return active.AddAddress(addr)
+	logging.LogBackend(fmt.Sprintf("AddAddressToProject: %s", addrStr))
+	if addr, ok := a.ConvertToAddress(addrStr); ok {
+		if active := a.GetActiveProject(); active != nil {
+			logging.LogBackend(fmt.Sprintf("AddAddress: %s", addr.Hex()))
+			return active.AddAddress(addr)
+		}
+		logging.LogBackend("AddAddressToProject: no active project")
+		return fmt.Errorf("no active project")
 	}
-	return fmt.Errorf("no active project")
+	logging.LogBackend("AddAddressToProject: invalid address")
+	return fmt.Errorf("invalid address: %s", addrStr)
+}
+
+func (a *App) AddAddressesToProject(input string) error {
+	first := base.Address{}
+	addrs := strings.Split(strings.ReplaceAll(strings.ReplaceAll(input, "\n", "|"), ",", "|"), "|")
+	for _, addr := range addrs {
+		if err := a.AddAddressToProject(addr); err != nil {
+			return err
+		}
+		if first == base.ZeroAddr {
+			first = base.HexToAddress(addr)
+		}
+	}
+	if first.IsZero() {
+		return fmt.Errorf("no valid addresses found")
+	}
+	return a.SetActiveAddress(first.Hex())
 }
 
 func (a *App) RemoveAddressFromProject(addrStr string) error {
-	addr := base.HexToAddress(addrStr)
-	if active := a.GetActiveProject(); active != nil {
-		return active.RemoveAddress(addr)
+	if addr, ok := a.ConvertToAddress(addrStr); ok {
+		if active := a.GetActiveProject(); active != nil {
+			return active.RemoveAddress(addr)
+		}
+		return fmt.Errorf("no active project")
 	}
-	return fmt.Errorf("no active project")
+	return fmt.Errorf("invalid address: %s", addrStr)
 }
