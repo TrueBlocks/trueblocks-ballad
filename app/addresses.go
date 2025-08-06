@@ -5,7 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/TrueBlocks/trueblocks-ballad/pkg/logging"
 	"github.com/TrueBlocks/trueblocks-ballad/pkg/msgs"
 
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/base"
@@ -62,16 +61,12 @@ func (a *App) SetActiveAddress(addrStr string) error {
 }
 
 func (a *App) AddAddressToProject(addrStr string) error {
-	logging.LogBackend(fmt.Sprintf("AddAddressToProject: %s", addrStr))
 	if addr, ok := a.ConvertToAddress(addrStr); ok {
 		if active := a.GetActiveProject(); active != nil {
-			logging.LogBackend(fmt.Sprintf("AddAddress: %s", addr.Hex()))
 			return active.AddAddress(addr)
 		}
-		logging.LogBackend("AddAddressToProject: no active project")
 		return fmt.Errorf("no active project")
 	}
-	logging.LogBackend("AddAddressToProject: invalid address")
 	return fmt.Errorf("invalid address: %s", addrStr)
 }
 
